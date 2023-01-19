@@ -1,0 +1,106 @@
+---
+title: "Visualizing Starwars characters"
+author: "add your name here"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    fig_height: 5
+    fig_width: 8
+---
+
+```{r load-packages, include=FALSE}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+## Basic ggplot practice
+
+1. Glimpse at the starwars data frame.
+```{r glimpse-starwars}
+glimpse(starwars)
+```
+
+2. Modify the following plot to: 
+
+- map color to `gender` and size to `birth_year`,  
+- map the transparency (`alpha`) of all of the points 0.6  
+- replace the `---` to add a title and axis labels with units (assume height is in cm and mass is in kg).
+```{r}
+ggplot(starwars, aes(x = height, y = mass)) +
+  geom_point() +
+  labs(x = "---",
+       y = "---",
+       title = "---")
+```
+
+3. Modify the following plot to change the color of all of the bars to pink. You can either use the word `"pink"` (in quotes) or Google "hex color picker," select a pink-ish color, and use `#` followed by the six-digit hex color that corresponds to your pink color (e.g., `"#FFFFFF"`).
+
+Remove the `coord_flip` layer to see what happens. Keep whichever plot (with or without `coord_flip()`) looks better.
+
+```{r scatterplot}
+ggplot(starwars, aes(x = reorder(species, species, function(x) length(x)))) +
+  geom_bar() +
+  labs(x = "Count", y = "Species") +
+  coord_flip()
+```
+
+4. Using the Palmer penguins data, map `body_mass_g` to the x-axis, `flipper_length_mm` to the y-axis, color to sex. Then facet by island and add a title and axis labels. Remove the `#` before running this code chunk.
+```{r}
+#ggplot(penguins, aes(x = ---, y = ---, color = ---)) +
+#  geom_point() +
+#  facet_wrap(~ ---) +
+#  labs(x = "---",
+#       y = "---",
+#       title = "---")
+```
+
+5. Copy and paste the code from above into the chunk below, then replace `facet_wrap` with `facet_grid` to facet by island and species.
+```{r}
+
+```
+
+6. If this was easy for you, play around with any of the code above to see what happens when you make changes. See the [R4DS visualization chapter](https://r4ds.had.co.nz/data-visualisation.html) for more ideas.
+
+
+## Visualizing numerical and categorical data practice
+
+7. Pick a single categorical variable from the `starwars` data set and make a bar plot of its distribution. 
+
+(A little bit of starter code is provided below, and the code chunk is set to not be evaluated with `eval = FALSE` because the current code in there is not valid code and hence the document wouldn't knit. Once you replace the code with valid code, set the chunk option to `eval = TRUE`, or remove the `eval` option altogether since it's set to `TRUE` by default.)
+
+```{r barplot, eval = FALSE}
+ggplot(starwars, aes(___)) +
+  geom___
+```
+
+8. Pick a single numerical variable and make a histogram of it.
+
+(This time no starter code is provided, you're on your own!)
+
+```{r histogram}
+
+```
+
+9. Pick a numerical variable and a categorical variable and make a visualization (you pick the type!) to visualize the relationship between the two variables. Along with your code and output, provide an interpretation of the visualization.
+
+```{r num-cat}
+
+```
+
+10. Pick two categorical variables and make a visualization to show the relationship between the two variables. Along with your code and output, provide an interpretation of the visualization.
+
+```{r cat-cat}
+
+```
+
+11. Pick two numerical variables and two categorical variables and make a visualization that incorporates all of them and provide an interpretation with your answer.
+
+```{r multi}
+
+```
+
+12. If you finish early, make some more plots in the chunk below using the `starwars` or `penguins` datasets. Play around with the different aesthetics (color, size, shape, alpha, faceting).
+```{r}
+
+```
+
