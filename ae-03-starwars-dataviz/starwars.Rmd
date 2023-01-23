@@ -23,7 +23,7 @@ glimpse(starwars)
 2. Modify the following plot to: 
 
 - map color to `gender` and size to `birth_year`,  
-- map the transparency (`alpha`) of all of the points 0.6  
+- set the transparency (`alpha`) of all of the points 0.6  
 - replace the `---` to add a title and axis labels with units (assume height is in cm and mass is in kg).
 ```{r}
 ggplot(starwars, aes(x = height, y = mass)) +
@@ -33,7 +33,7 @@ ggplot(starwars, aes(x = height, y = mass)) +
        title = "---")
 ```
 
-3. Modify the following plot to change the color of all of the bars to pink. You can either use the word `"pink"` (in quotes) or Google "hex color picker," select a pink-ish color, and use `#` followed by the six-digit hex color that corresponds to your pink color (e.g., `"#FFFFFF"`).
+3. Modify the following plot to change the fill color of all of the bars to pink. Try first setting color to pink. The result may not be what you were expecting. We didn't explicitly go over how to change the fill color but the word `fill` is a hint - see if you can figure it out. You can either use the word `"pink"` (in quotes) or Google "hex color picker," select a pink-ish color, and use `#` followed by the six-digit hex color that corresponds to your pink color (e.g., `"#FFFFFF"`).
 
 Remove the `coord_flip` layer to see what happens. Keep whichever plot (with or without `coord_flip()`) looks better.
 
@@ -44,7 +44,7 @@ ggplot(starwars, aes(x = reorder(species, species, function(x) length(x)))) +
   coord_flip()
 ```
 
-4. Using the Palmer penguins data, map `body_mass_g` to the x-axis, `flipper_length_mm` to the y-axis, color to sex. Then facet by island and add a title and axis labels. Remove the `#` before running this code chunk.
+4. Using the Palmer penguins data, map `body_mass_g` to the x-axis, `flipper_length_mm` to the y-axis, color to sex. Then facet by island and add a title and axis labels. Remove the `#` at the beginning of each line before running this code chunk.
 ```{r}
 #ggplot(penguins, aes(x = ---, y = ---, color = ---)) +
 #  geom_point() +
@@ -54,12 +54,12 @@ ggplot(starwars, aes(x = reorder(species, species, function(x) length(x)))) +
 #       title = "---")
 ```
 
-5. Copy and paste the code from above into the chunk below, then replace `facet_wrap` with `facet_grid` to facet by island and species.
+5. Copy and paste the code from above into the chunk below, then replace `facet_wrap` with `facet_grid` to facet by both island and species.
 ```{r}
 
 ```
 
-6. If this was easy for you, play around with any of the code above to see what happens when you make changes. See the [R4DS visualization chapter](https://r4ds.had.co.nz/data-visualisation.html) for more ideas.
+6. If this was easy for you, play around with any of the code above to see what happens when you make additional changes. See the [R4DS visualization chapter](https://r4ds.had.co.nz/data-visualisation.html) to explore different geoms, aesthetic options, etc.
 
 
 ## Visualizing numerical and categorical data practice
