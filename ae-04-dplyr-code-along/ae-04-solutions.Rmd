@@ -1,0 +1,109 @@
+---
+title: "`dplyr` code-along"
+author: ""
+date: "1/30/2023"
+output: github_document
+---
+
+These are some of the many `dplyr` functions:
+
+- `select`: pick columns by name
+- `arrange`: reorder rows
+- `slice`: pick rows using index(es)
+- `filter`: pick rows matching criteria
+- `distinct`: find unique observations
+- `mutate`: add new variables
+- `summarize`: reduce variables to values
+- `group_by`: used for a variety of grouped operations
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+```
+
+Let's code the following together using the `penguins` dataset to give you practice using pipes and some of these `dplyr` functions:
+
+### 1. Select `species`, `bill_length_mm`, and `year`
+```{r}
+penguins %>%
+  select(species, bill_length_mm, year)
+
+#or
+
+select(penguins, c(species, bill_length_mm, year))
+```
+
+### 2. Select `species`, `bill_length_mm`, and `year` and then arrange by `bill_length_mm`
+```{r}
+penguins %>%
+  select(species, bill_length_mm, year) %>%
+  arrange(bill_length_mm)
+```
+
+### 3. Filter the `penguins` dataset to only keep observations from 2007
+```{r}
+penguins %>%
+  filter(year == 2007)
+
+#or
+
+filter(penguins, year == 2007)
+```
+
+### 4. Filter the `penguins` dataset to only keep observations after 2007
+```{r}
+penguins %>%
+  filter(year > 2007)
+
+#or
+
+filter(penguins, year > 2007)
+```
+
+### 5. Filter the `penguins` dataset to only keep observations from `Dream` island
+```{r}
+penguins %>%
+  filter(island == "Dream")
+
+#or
+
+filter(penguins, island == "Dream")
+```
+
+### 6. Use the `distinct` function to find out what the unique species are
+```{r}
+penguins %>%
+  distinct(species)
+
+#or
+
+distinct(penguins, species)
+```
+
+### 7. Use the `slice_min` function to look at the row with the smallest `bill_length_mm` 
+```{r}
+penguins %>%
+  slice_min(bill_length_mm)
+
+#or
+
+slice_min(penguins, bill_length_mm)
+```
+
+### 8. Use the `slice_max` function to look at the rows with the 5 largest `body_mass_g` values
+```{r}
+penguins %>%
+  slice_max(body_mass_g)
+
+#or
+
+slice_max(penguins, body_mass_g)
+```
+
+### 9. Use the `group_by` and `slice` functions to look at the rows with the greatest `body_mass_g` for each `species`
+```{r}
+penguins %>%
+  group_by(species) %>%
+  slice_max(body_mass_g)
+```
+

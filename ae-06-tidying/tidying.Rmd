@@ -1,0 +1,122 @@
+---
+title: "Tidy data"
+author: "___"
+output: 
+  html_document: 
+    fig_height: 4
+    fig_width: 9
+---
+
+These exercises come directly from [Ch 12 Tidy data](https://r4ds.had.co.nz/tidy-data.html) of the R for Data Science online textbook. The goal is to give you practice recognizing tidy/untidy data and using the `tidyr` functions to tidy our data so that they are appropriately formatted for further analysis. Refer to the book for additional details. 
+
+If you’d like to learn more about the underlying theory of tidy data, see the Tidy Data paper published in the Journal of Statistical Software, http://www.jstatsoft.org/v59/i10/paper.
+
+Load `tidyverse` package
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+Recall that: 
+
+> “Happy families are all alike; every unhappy family is unhappy in its own way.” –– Leo Tolstoy
+
+> “Tidy datasets are all alike, but every messy dataset is messy in its own way.” –– Hadley Wickham
+
+1. Which one of the following datasets is tidy? (The tables contain info on tuberculosis cases in different countries in 1999 and 2000).
+
+There are three interrelated rules which make a dataset tidy:
+
+Each variable must have its own column.
+Each observation must have its own row.
+Each value must have its own cell.
+```{r tables}
+table1
+table2
+table3
+table4a
+table4b
+```
+
+These three rules are interrelated because it’s impossible to only satisfy two of the three. That interrelationship leads to an even simpler set of practical instructions:
+
+Put each dataset in a tibble.
+Put each variable in a column.
+
+Why ensure that your data is tidy? There are two main advantages:
+
+There’s a general advantage to picking one consistent way of storing data. If you have a consistent data structure, it’s easier to learn the tools that work with it because they have an underlying uniformity.
+
+There’s a specific advantage to placing variables in columns because it allows R’s vectorised nature to shine. As you learned in mutate and summary functions, most built-in R functions work with vectors of values. That makes transforming tidy data feel particularly natural.
+
+
+2. Try out the following wrangling functions on `table1`: `mutate`, `count`, `group_by`/`summarize`. 
+```{r wrangle-table1}
+
+```
+
+3. Make a plot using `table1`. 
+```{r plot-table1}
+
+```
+
+
+4. Using prose, describe how the variables and observations are organized in each of the four tables in terms of rows, columns, and observations.
+
+
+5. What do you need to do in order to more easily compute the case rate (cases/population) in table2? Do it in the chunk below.
+```{r table2-rate}
+
+```
+
+6. How can we get table 4a (cases) and 4b (population) into tidy format? Do it! Assign each of these to new objects called `table4a_tidy` and `table4b_tidy`.
+```{r table4ab-tidy}
+
+```
+
+7. What do we need to do to combine these two new tables? Do it! Assign the resulting output to a new object called `table4`.
+```{r table4-new}
+
+```
+
+8. Why does this code fail? See if you can fix it. (remove the `eval=FALSE` option when you're done)
+```{r fix-the-fail-backticks, eval = FALSE}
+table4a %>% 
+  pivot_longer(c(1999, 2000), names_to = "year", values_to = "cases")
+```
+
+9. What would happen if you widen this table? Why? How could you add a new column to uniquely identify each value?
+```{r fix-the-fail-unique-id}
+people <- tribble(
+  ~name,             ~names,  ~values,
+  #-----------------|--------|------
+  "Phillip Woods",   "age",       45,
+  "Phillip Woods",   "height",   186,
+  "Phillip Woods",   "age",       50,
+  "Jessica Cordero", "age",       37,
+  "Jessica Cordero", "height",   156
+)
+```
+
+10. What is the problem with table3? Type `?separate` into the console. See if you can use the `separate` function to split the `rate` column into two separate columns. What are the column types in the resulting table? What additional argument can you use to convert the resulting values into more useful types? (refer back to the `separate` help file)
+```{r table3-separate}
+
+```
+
+By default, `separate()` will split values wherever it sees a non-alphanumeric character (i.e. a character that isn’t a number or letter). For example, in the code above, `separate()` splits the values of rate at the forward slash character. If you wish to use a specific character to separate a column, you can pass the character to the `sep` argument of `separate()`.
+
+You can also pass a vector of integers to `sep`. `separate()` will interpret the integers as positions to split at. Positive values start at 1 on the far-left of the strings; negative value start at -1 on the far-right of the strings. When using integers to separate strings, the length of sep should be one less than the number of names in into.
+
+Here, we use this arrangement to separate the last two digits of each year. This makes the data less tidy, but we can use the resulting table to learn how to fix this issue.
+```{r separate-year}
+table3 %>%
+  separate(year, into = c("century", "year"), sep = 2)
+```
+
+We can use `unite()` to rejoin the century and year columns that we created in the last example. Try to to this in the chunk below. (remove the `eval=FALSE` option when you're done)
+```{r unite, eval = FALSE}
+table5a <- table3 %>%
+  separate(year, into = c("century", "year"), sep = 2)
+
+table5b <- table5a %>%
+  unite(---)
+```

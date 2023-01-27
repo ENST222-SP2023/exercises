@@ -1,0 +1,189 @@
+---
+title: "COVID-19 cases"
+date: "`r Sys.Date()`"
+output: 
+  html_document: 
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This exercise comes directly from [Ch 12 Tidy data](https://r4ds.had.co.nz/tidy-data.html) of the R for Data Science (R4DS) online textbook. The goal is to give you practice using the `tidyr` functions to tidy our data so that they are appropriately formatted for further analysis. Please refer to R4DS for additional details. 
+
+If you’d like to learn more about the underlying theory of tidy data, see the Tidy Data paper published in the Journal of Statistical Software, http://www.jstatsoft.org/v59/i10/paper.
+
+Load `tidyverse` package
+```{r warning=FALSE, message=FALSE}
+library(tidyverse)
+```
+
+### Dealing with missing values
+
+Before we begin, there is one more aspect of tidy data to cover: missing values.Changing the representation of a dataset brings up an important subtlety of missing values. Surprisingly, a value can be missing in one of two possible ways:
+
+- Explicitly, i.e. flagged with `NA`.
+- Implicitly, i.e. simply not present in the data.
+
+Let’s illustrate this idea with a very simple data set:
+```{r stocks}
+stocks <- tibble(
+  year   = c(2015, 2015, 2015, 2015, 2016, 2016, 2016),
+  qtr    = c(   1,    2,    3,    4,    2,    3,    4),
+  return = c(1.88, 0.59, 0.35,   NA, 0.92, 0.17, 2.66)
+)
+```
+
+There are two missing values in this dataset:
+
+- The return for the fourth quarter of 2015 is explicitly missing, because the cell where its value should be instead contains `NA`.
+
+- The return for the first quarter of 2016 is implicitly missing, because it simply does not appear in the dataset.
+
+One way to think about the difference is with this Zen-like koan: An explicit missing value is the presence of an absence; an implicit missing value is the absence of a presence.
+
+The way that a dataset is represented can make implicit values explicit. For example, we can make the implicit missing value explicit by putting years in the columns:
+```{r na-explicity}
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return)
+```
+
+Because these explicit missing values may not be important in other representations of the data, you can set `values_drop_na = TRUE` in `pivot_longer()` to turn explicit missing values implicit:
+```{r na-values-drop}
+stocks %>% 
+  pivot_wider(names_from = year, values_from = return) %>% 
+  pivot_longer(
+    cols = c(`2015`, `2016`), 
+    names_to = "year", 
+    values_to = "return", 
+    values_drop_na = TRUE
+  )
+```
+
+Another important tool for making missing values explicit in tidy data is `complete()`:
+```{r complete}
+stocks %>% 
+  complete(year, qtr)
+```
+
+`complete()` takes a set of columns, and finds all unique combinations. It then ensures the original dataset contains all those values, filling in explicit NAs where necessary.
+
+There’s one other important tool that you should know for working with missing values. Sometimes when a data source has primarily been used for data entry, missing values indicate that the previous value should be carried forward:
+```{r create-treatment}
+treatment <- tribble(
+  ~ person,           ~ treatment, ~response,
+  "Derrick Whitmore", 1,           7,
+  NA,                 2,           10,
+  NA,                 3,           9,
+  "Katherine Burke",  1,           4
+)
+```
+
+You can fill in these missing values with fill(). It takes a set of columns where you want missing values to be replaced by the most recent non-missing value (sometimes called last observation carried forward).
+```{r fill}
+treatment %>% 
+  fill(person)
+```
+
+### Case study
+The `tidyr::who` dataset contains tuberculosis (TB) cases broken down by year, country, age, sex, and diagnosis method. The data comes from the 2014 World Health Organization Global Tuberculosis Report, available at http://www.who.int/tb/country/data/download/en/.
+
+There’s a wealth of epidemiological information in this dataset, but it’s challenging to work with the data in the form that it’s provided:
+```{r who-look}
+who
+```
+
+This is a very typical real-life example dataset. It contains redundant columns, odd variable codes, and many missing values. In short, `who` is messy, and we’ll need multiple steps to tidy it. Like `dplyr`, `tidyr` is designed so that each function does one thing well. That means in real-life situations you’ll usually need to string together multiple verbs into a pipeline.
+
+The best place to start is almost always to gather together the columns that are not variables. Let’s have a look at what we’ve got:
+
+It looks like `country`, `iso2`, and `iso3` are three variables that redundantly specify the country.
+
+`year` is clearly also a variable.
+
+We don’t know what all the other columns are yet, but given the structure in the variable names (e.g. `new_sp_m014`, `new_ep_m014`, `new_ep_f014`) these are likely to be values, not variables.
+
+So we need to gather together all the columns from `new_sp_m014` to `newrel_f65`. We don’t know what those values represent yet, so we’ll give them the generic name "key". We know the cells represent the count of cases, so we’ll use the variable cases. There are a lot of missing values in the current representation, so for now we’ll use `values_drop_na` just so we can focus on the values that are present.
+```{r who1}
+who1 <- who %>% 
+  pivot_longer(
+    cols = new_sp_m014:newrel_f65, 
+    names_to = "key", 
+    values_to = "cases", 
+    values_drop_na = TRUE
+  )
+
+who1
+```
+
+We can get some hint of the structure of the values in the new key column by counting them:
+```{r who1-count}
+who1 %>% 
+  count(key)
+```
+
+You might be able to parse this out by yourself with a little thought and some experimentation, but luckily we have the data dictionary handy. It tells us:
+
+1. The first three letters of each column denote whether the column contains new or old cases of TB. In this dataset, each column contains new cases.
+
+2. The next two letters describe the type of TB:
+
+- rel stands for cases of relapse
+- ep stands for cases of extrapulmonary TB
+- sn stands for cases of pulmonary TB that could not be diagnosed by a pulmonary smear (smear negative)
+- sp stands for cases of pulmonary TB that could be diagnosed by a pulmonary smear (smear positive)
+
+3. The sixth letter gives the sex of TB patients. The dataset groups cases by males (m) and females (f).
+
+4. The remaining numbers gives the age group. The dataset groups cases into seven age groups:
+
+- 014 = 0 – 14 years old
+- 1524 = 15 – 24 years old
+- 2534 = 25 – 34 years old
+- 3544 = 35 – 44 years old
+- 4554 = 45 – 54 years old
+- 5564 = 55 – 64 years old
+- 65 = 65 or older
+
+We need to make a minor fix to the format of the column names: unfortunately the names are slightly inconsistent because instead of new_rel we have newrel (it’s hard to spot this here but if you don’t fix it we’ll get errors in subsequent steps). You’ll learn about str_replace() in strings, but the basic idea is pretty simple: replace the characters “newrel” with “new_rel”. This makes all variable names consistent.
+
+```{r who2}
+who2 <- who1 %>% 
+  mutate(key = str_replace(key, "newrel", "new_rel"))
+```
+
+We can separate the values in each code with two passes of separate(). The first pass will split the codes at each underscore.
+```{r who3}
+who3 <- who2 %>% 
+  separate(key, c("new", "type", "sexage"), sep = "_")
+who3
+```
+
+Then we might as well drop the new column because it’s constant in this dataset. While we’re dropping columns, let’s also drop iso2 and iso3 since they’re redundant.
+
+```{r who4}
+who4 <- who3 %>% 
+  select(-new, -iso2, -iso3)
+```
+
+Next we’ll separate sexage into sex and age by splitting after the first character:
+
+```{r who5}
+who5 <- who4 %>% 
+  separate(sexage, c("sex", "age"), sep = 1)
+who5
+```
+
+I’ve shown you the code a piece at a time, assigning each interim result to a new variable. This typically isn’t how you’d work interactively. Instead, you’d gradually build up a complex pipe. Try to build the pipeline in the chunk below using the code from above.
+
+```{r who-build-pipe}
+
+```
+
+For each country, year, and sex compute the total number of cases of TB. Make an informative visualisation of the data.
+
+```{r visualize}
+
+```
