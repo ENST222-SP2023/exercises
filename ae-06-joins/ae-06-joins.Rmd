@@ -1,0 +1,60 @@
+---
+title: "AE-06: Joins practice"
+output: html_document
+---
+
+```{r load-pkg, message = FALSE}
+library(tidyverse)
+library(skimr)
+```
+
+The `dplyr` packages contains a few small datasets that are useful for understanding how different joins work. 
+
+First look at the dataframes:
+```{r}
+band_members
+
+band_instruments
+```
+
+In groups, take turns coding and interpreting the output. One person should try to figure out and run the code. The other person (or people) should look at the output and put into words what the code does. 
+
+1. Combine `band_members` and `band_instruments` using `left_join`. Explain in your own words what happened. How does R handle rows that contain data in x but not y?
+```{r left-join}
+
+```
+
+2. Combine `band_members` and `band_instruments` using `right_join`. Explain in your own words what happened.
+```{r right-join}
+
+```
+
+3. Combine `band_members` and `band_instruments` using `full_join`. Explain in your own words what happened.
+```{r full-join}
+
+```
+
+4. Combine `band_members` and `band_instruments` using `inner_join`. Explain in your own words what happened.
+```{r inner-join}
+
+```
+
+5. Combine `band_members` and `band_instruments` using `semi_join`. Explain in your own words what happened. Note the column names and number of columns - which dataframe are these from?
+```{r semi-join}
+
+```
+
+6. Combine `band_members` and `band_instruments` using `semi_join` but reverse the order in which you join them (i.e., if you typed `band_members` first and `band_instruments` second in the previous chunk, type `band_instruments` first this time). Explain in your own words what happened. Note the column names and number of columns - which dataframe are these from?
+```{r semi-join-order}
+
+```
+
+7. Combine `band_members` and `band_instruments` using `anti_join`. Explain in your own words what happened. Note the column names and number of columns - which dataframe are these from?
+```{r anti-join}
+
+```
+
+8. Combine `band_members` and `band_instruments` using `anti_join` but reverse the order in which you join them (i.e., if you typed `band_members` first and `band_instruments` second in the previous chunk, type `band_instruments` first this time). Explain in your own words what happened. Note the column names and number of columns - which dataframe are these from?
+```{r anti-join-order}
+
+```

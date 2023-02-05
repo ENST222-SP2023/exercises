@@ -1,7 +1,7 @@
 ---
 title: "Hotel bookings - data wrangling"
 author: ""
-output: github_document
+output: html_document
 ---
 
 ```{r load-pkg, message = FALSE}
