@@ -1,0 +1,71 @@
+---
+title: "ae-06: `tidyr` and pivoting - solutions"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+```
+
+1. The following is survey data containing information about respondent religion and the number of respondents earning the listed income ranges. Is the data "tidy"? How would it need to be formatted if we wanted to create a bar plot that maps number of respondents to the x axis, income to the y axis, and religion to fill color?   
+```{r}
+relig_income
+```
+
+2. Use the `pivot_longer` function to convert the dataset from wide to long format so that it contains a column for `income` and a column for `count`. Assign the output to a new object called `relig_income_long`.
+```{r}
+relig_income_long <- relig_income %>%
+  pivot_longer(cols = 2:11,
+               names_to = "income", 
+               values_to = "count")
+
+relig_income_long
+```
+
+3. Create a bar plot with `relig_income_long` that maps number of respondents to the x axis, income to the y axis, and religion to fill color. 
+```{r}
+ggplot(relig_income_long, aes(x = count, y = income, fill = religion)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Count", y = "Income", fill = "Religion")
+```
+
+4. Since the number of respondents was different across religions and incomes, it's hard to determine if income is different depending on religious affiliation. Modify the bar plot so that we can more effectively make this comparison.
+```{r}
+ggplot(relig_income_long, aes(x = count, y = income, fill = religion)) +
+  geom_bar(stat = "identity",
+           position = "fill") +
+  labs(x = "Proportion of respondents", y = "Income", fill = "Religion")
+```
+
+5. Use the `pivot_wider` function to convert `relig_income_long` back to the original wide format.
+```{r}
+relig_income_long %>%
+  pivot_wider(names_from = income, values_from = count)
+```
+
+6. The following dataset contains information on individually tagged fish (`fish`), the `station` at which each fish was measured, and whether or not it was seen (1 for yes - only observations where fish were seen are included). Note the number of rows and columns in the dataset.
+```{r}
+fish_encounters
+```
+
+
+To be able to create a statistical model with this data, we also need to explicitly include observations where researchers went out to look for fish but none were seen, which we would indicate with a 0 in the data. Use the `pivot_wider` function to convert the dataset to wide format, where `names_from = station` and `values_from = seen`. Explain in your own words how the dataset was transformed. What to the NAs represent? Add the additional argument `values_fill = 0`. What happened to the NAs?
+```{r}
+fish_long <- fish_encounters %>%
+     pivot_wider(names_from = station, values_from = seen)
+
+fish_long
+
+fish_long0 <- fish_encounters %>%
+     pivot_wider(names_from = station, values_from = seen, values_fill = 0)
+
+fish_long0
+```
+
+7. Convert `fish_long0` back to long format so that it is tidy for formulating our model but now contains 0s for observations when a fish was not observed. How many rows does it contain now? Why does it contain more rows than the original dataset?
+```{r}
+fish_long0 %>%
+  pivot_longer(cols = 2:12,
+               names_to = "station", 
+               values_to = "seen")
+```
