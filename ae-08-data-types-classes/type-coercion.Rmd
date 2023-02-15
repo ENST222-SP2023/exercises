@@ -1,0 +1,85 @@
+---
+title: "Type coercion"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+Try to guess the data type of each vector. First look at the type of each element of the vector. Then guess what type the vector inherits. Use the `typeof()` function to check your guess.
+
+1. `c(1, 1L, "C")`
+
+```{r}
+c(1, 1L, "C")
+```
+
+```{r}
+typeof(1)
+typeof(1L)
+typeof("C")
+```
+
+```{r}
+typeof(c(1, 1L, "C"))
+```
+
+2.   `c(1L / 0, "A")`
+
+```{r}
+c(1L / 0, "A")
+```
+
+```{r}
+typeof(1L)
+typeof(0)
+typeof(1L/0)
+typeof("A")
+```
+
+```{r}
+typeof(c(1L / 0, "A"))
+```
+
+3. `c(1:3, 5)`
+
+```{r}
+c(1:3, 5)
+```
+
+```{r}
+typeof(1:3)
+typeof(5)
+```
+
+```{r}
+typeof(c(1:3, 5))
+```
+
+4. `c(3, "3+")`
+
+```{r}
+c(3, "3+")
+```
+
+```{r}
+typeof(3)
+typeof("3+")
+```
+
+```{r}
+typeof(c(3, "3+"))
+```
+
+5. `c(NA, TRUE)`
+
+```{r}
+c(NA, TRUE)
+```
+
+```{r}
+typeof(NA)
+typeof(TRUE)
+```
+
+```{r}
+typeof(c(NA, TRUE))
+```

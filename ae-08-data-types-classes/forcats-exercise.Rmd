@@ -1,0 +1,76 @@
+---
+title: "Hotel bookings - factors"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r load-pkg, message = FALSE}
+library(tidyverse)
+library(skimr)
+```
+
+```{r load-data, message = FALSE}
+# From TidyTuesday: https://github.com/rfordatascience/tidytuesday/blob/master/data/2020/2020-02-11/readme.md
+hotels <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv")
+```
+
+To get started, we'll create a new object called `customers` with the `hotels` dataset in which we select the `adr` and `customer_type` columns and filter the dataset so that it only contains rows in which `adr` is greater than 0 and less than 1000. The, we use the `mutate()` function to coerce `customer_type` into a factor.   
+```{r}
+customers <- hotels %>%
+  select(adr, customer_type) %>%
+  filter(adr > 0 & adr < 2000) %>%
+  mutate(customer_type = factor(customer_type))
+```
+
+Next, we'll create a boxplot with `customer_type` mapped to the x-axis and `adr` mapped to the y-axis.
+```{r}
+ggplot(customers, aes(x = customer_type, y = adr)) +
+  geom_boxplot()
+```
+
+
+1. Use the `fct_shuffle()` function to randomly shuffle the order of `customer_type` levels, and then plot as above.
+```{r, eval = FALSE}
+customers %>%
+  mutate(customer_type = ---) %>%
+  ggplot(aes(x = customer_type, y = adr)) +
+   geom_boxplot()
+```
+
+2. Use the `fct_rev()` function to reverse order of `customer_type` levels, and then plot as above.
+```{r, eval = FALSE}
+customers %>%
+  mutate(customer_type = ---) %>%
+  ggplot(aes(x = customer_type, y = adr)) +
+   geom_boxplot()
+```
+
+3. Use the `fct_shift()` shift `customer_type` levels 1 place to the left, and then plot as above.
+```{r, eval = FALSE}
+customers %>%
+  mutate(customer_type = ---) %>%
+  ggplot(aes(x = customer_type, y = adr)) +
+   geom_boxplot()
+```
+
+4. Use the `fct_relevel()` to change the order `customer_type` levels manually however you'd like, and then plot as above. Use `?fct_relevel` for help.
+```{r, eval = FALSE}
+customers %>%
+  mutate(customer_type = ---) %>%
+  ggplot(aes(x = customer_type, y = adr)) +
+    geom_boxplot()
+```
+
+5. Use the `fct_recode()` to change the names of the `customer_type` levels to whatever you'd like. Use `?fct_recodel` for help.
+```{r, eval = FALSE}
+customers %>%
+  mutate(customer_type = ---) %>%
+  ggplot(aes(x = customer_type, y = adr)) +
+    geom_boxplot()
+```
+
+6. Try other `forcats` functions to see what they do. See the [forcats reference page](https://forcats.tidyverse.org/reference/index.html) for a list of functions.
+```{r}
+
+```
+

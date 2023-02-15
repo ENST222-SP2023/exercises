@@ -1,0 +1,31 @@
+---
+title: "Nobel winners"
+author: ""
+output: github_document
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+```
+
+1. Let's first load the nobels.csv file from the data-raw/ folder:
+
+```{r label-me1, eval=FALSE}
+nobel <- ___(___)
+```
+
+2. Then let's split the data into two new data frames called `nobel_stem` (which filters for the STEM fields: Physics, Medicine, Chemistry, and Economics) and `nobel_nonstem` that includes the remaining fields. 
+```{r label-me2, eval=FALSE}
+# stem laureates
+___ <- nobel %>%
+  filter(___)
+
+# non-steam laureates
+___ <- nobel %>%
+  filter(___)
+```
+
+3. And finally write the resulting data frames to .csv files called nobel-stem.csv and nobel-nostem.csv to the data/ folder.
+```{r label-me3}
+# add code for writing out the two data frames here
+```
