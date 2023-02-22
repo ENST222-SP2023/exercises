@@ -22,11 +22,11 @@ library(RColorBrewer)
 ```
 
 ```{r, include = FALSE}
-co2_emissions <- read_xlsx("data/raw/yearly_co2_emissions_1000_tonnes.xlsx")
-energy_use    <- read_xlsx("data/raw/energy_use_per_person.xlsx")
-us_disaster <- read_csv("data/raw/disasters.csv", skip = 2) %>%
+co2_emissions <- read_xlsx("data/yearly_co2_emissions_1000_tonnes.xlsx")
+energy_use    <- read_xlsx("data/energy_use_per_person.xlsx")
+us_disaster <- read_csv("data/disasters.csv", skip = 2) %>%
   clean_names()
-us_temperature <- read_csv("data/raw/temperature.csv", skip = 4, na = "-99") %>%
+us_temperature <- read_csv("data/temperature.csv", skip = 4, na = "-99") %>%
   clean_names()
 ```
 
