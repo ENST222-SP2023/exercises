@@ -1,0 +1,231 @@
+---
+title: "Functions"
+author: "Cassie Gurbisz"
+date: ""
+output: html_document
+---
+
+```{r load-packages, include = FALSE}
+library(tidyverse)
+library(palmerpenguins)
+library(viridis)
+```
+
+Function exercises adapted from [R for Data Science Ch 19: Functions](https://r4ds.had.co.nz/functions.html).
+
+## Writing functions
+
+One of the best ways to improve your reach as a data scientist is to write functions. Functions allow you to automate common tasks in a more powerful and general way than copy-and-pasting. Writing a function has three big advantages over using copy-and-paste:
+
+- You can give a function an evocative name that makes your code easier to understand.
+- As requirements change, you only need to update code in one place, instead of many.
+- You eliminate the chance of making incidental mistakes when you copy and paste (i.e. updating a variable name in one place, but not in another).
+
+You should consider writing a function whenever you’ve copied and pasted a block of code more than twice (i.e. you now have three copies of the same code). For example, take a look at this code. What does it do? Can you spot the error?
+```{r}
+df <- tibble(
+  a = rnorm(10),
+  b = rnorm(10),
+  c = rnorm(10),
+  d = rnorm(10)
+)
+
+df$a <- (df$a - min(df$a)) / (max(df$a) - min(df$a))
+df$b <- (df$b - min(df$b)) / (max(df$b) - min(df$a))
+df$c <- (df$c - min(df$c)) / (max(df$c) - min(df$c))
+df$d <- (df$d - min(df$d)) / (max(df$d) - min(df$d))
+```
+
+You might be able to puzzle out that this rescales each column to have a range from 0 to 1. But did you spot the mistake? I made an error when copying-and-pasting the code for df$b: I forgot to change an a to a b. Extracting repeated code out into a function is a good idea because it prevents you from making this type of mistake.
+
+To write a function you need to first analyze the code. How many inputs does it have?
+```{r}
+(df$a - min(df$a)) /
+  (max(df$a) - min(df$a))
+```
+
+This code only has one input: df$a. To make the inputs more clear, it’s a good idea to rewrite the code using temporary variables with general names. Here this code only requires a single numeric vector, so I’ll call it x:
+```{r}
+x <- df$a
+(x - min(x)) / (max(x) - min(x))
+```
+
+There is some duplication in this code. We’re computing the range of the data three times, so it makes sense to do it in one step:
+```{r}
+rng <- range(x)
+(x - rng[1]) / (rng[2] - rng[1])
+```
+
+Pulling out intermediate calculations into named variables is a good practice because it makes it more clear what the code is doing. Now that I’ve simplified the code, and checked that it still works, I can turn it into a function:
+```{r}
+rescale01 <- function(x) {
+  rng <- range(x, na.rm = TRUE)
+  (x - rng[1]) / (rng[2] - rng[1])
+}
+rescale01(c(0, 5, 10))
+```
+
+There are three key steps to creating a new function:
+
+- You need to pick a name for the function. Here I’ve used rescale01 because this function rescales a vector to lie between 0 and 1.
+- You list the inputs, or arguments, to the function inside function. Here we have just one argument. If we had more the call would look like function(x, y, z).
+- You place the code you have developed in body of the function, a { } block that immediately follows function(...).
+
+Note the overall process: I only made the function after I’d figured out how to make it work with a simple input. It’s easier to start with working code and turn it into a function; it’s harder to create a function and then try to make it work.
+
+At this point it’s a good idea to check your function with a few different inputs:
+```{r}
+rescale01(c(-10, 0, 10))
+
+rescale01(c(1, 2, 3, NA, 5))
+```
+
+We can simplify the original example now that we have a function:
+```{r}
+df$a <- rescale01(df$a)
+df$b <- rescale01(df$b)
+df$c <- rescale01(df$c)
+df$d <- rescale01(df$d)
+```
+
+Compared to the original, this code is easier to understand and we’ve eliminated one class of copy-and-paste errors. There is still quite a bit of duplication since we’re doing the same thing to multiple columns. We’ll learn how to eliminate that duplication in iteration soon.
+
+Another advantage of functions is that if our requirements change, we only need to make the change in one place. For example, we might discover that some of our variables include infinite values, and rescale01() fails:
+```{r}
+x <- c(1:10, Inf)
+rescale01(x)
+```
+
+Because we’ve extracted the code into a function, we only need to make the fix in one place:
+```{r}
+rescale01 <- function(x) {
+  rng <- range(x, finite = TRUE)
+  (x - rng[1]) / (rng[2] - rng[1])
+}
+rescale01(x)
+```
+
+This is an important part of the “do not repeat yourself” (or DRY) principle. The more repetition you have in your code, the more places you need to remember to update when things change (and they always do!), and the more likely you are to create bugs over time.
+
+
+### Try it:
+
+1. Practice turning the following code snippets into functions. Think about what each function does. What would you call it? How many arguments does it need? Test out your function using `test_vector`. (Don't forget to remove the `eval = FALSE` the chunk options when you're done if you plan to knit the document)
+```{r practice-1, eval = FALSE}
+test_vector <- c(5, 3, 8, 2, 5, 5, 3, 9)
+
+x / sum(x, na.rm = TRUE)
+
+sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE)
+```
+
+2. Create a function that will return the sum of two integers. Use `test_vector1`  and `test_vector2` to test the function.
+```{r practice-2, eval = FALSE}
+test_vector1 <- c(5, 3, 8, 2, 5, 5, 3, 9)
+test_vector2 <- c(1, 1, 2, 7, 4, 5, 3, 3)
+
+addfun <- function(x, y){
+  
+}
+```
+
+## If else statements
+
+`if()` statements have the basic form:
+
+    if (condition) {
+      expression
+    }
+
+Often we want to evaluate one expression if the condition is true, and evaluate a different expression if the condition is false. That is accomplished by the `if else` statement. Here we create the `sign()` function to determine whether a number is positive, negative, or zero. The input argument is a number. The return values are "the number is negative" if `x < 0`, "the number is positive" if `x > 0`, otherwise "the number is zero." 
+```{r signfun}
+ sign <- function(x) {
+   if (x < 0) {
+     print("the number is negative")
+   } else if (x > 0) {
+     print("the number is positive")
+   } else {
+     print("the number is zero")
+   }
+ }
+
+sign(3)
+sign(0)
+sign(-10)
+```
+
+### Try it:
+
+3. Create a function called `pizzafun` that returns the word "yum!", "meh", or "gross" depending on the pizza topping input. Possible input values include:
+- "cheese"
+- "vegan cheese"
+- "pepperoni"
+- "bacon pineapple"
+
+If the input is something else, return "sounds intriguing". 
+
+Test out the function to see how it works.
+```{r practice-3, eval = FALSE}
+
+```
+
+
+## Functions to make many graphs
+
+If you are making many of the exact same type of same plot, it may be worth it to create a function so you can avoid copying and pasting lots of code! First figure out your code and make sure it works outside of a function:
+```{r penguin-plot}
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point(alpha = 0.8) +
+  labs(x = "Bill length (mm)", 
+       y = "Bill depth (mm)", 
+       title = "Bill length vs. bill depth",
+       color = "Species") +
+  scale_color_viridis(discrete = TRUE, end = 0.8) +
+  theme_light() +
+  theme(text = element_text(size = 16,
+                            family = "Times New Roman"))
+```
+
+Now we need to figure out what are arguments should be. If you wanted to plot other variables in the `penguins` dataset, the main things that will change are the x and y variables, so we need to have arguments for x and y. But the x and y labels and title will also be different, so these should also be arguments in the function. Since we're making a function to plot variables from a single dataset (`penguins`), we're going to hard-code `penguins` into the function. If you have multiple datasets or you are making a function for use across projects you’ll want to add the dataset as a function argument.
+
+One tricky thing with including a ggplot in a function is that the function inputs are based on the variable names, which are strings, so I need to pass strings into my plotting function. But strings (any value with a pair of quotes around it) cannot be used directly in `aes()`. The workaround is to use the `.data` pronoun to call the x and y arguments in `aes()`:
+```{r}
+plotfun <- function(x, y, xlabel, ylabel, titlelabel){
+  ggplot(penguins, aes(.data[[x]], .data[[y]], color = species)) +
+  geom_point(alpha = 0.8) +
+  labs(x = xlabel, 
+       y = ylabel, 
+       title = titlelabel,
+       color = "Species") +
+  scale_color_viridis(discrete = TRUE, end = 0.8) +
+  theme_light() +
+  theme(text = element_text(size = 16,
+                            family = "Times New Roman"))
+}
+```
+
+Now I can use plotfun to create some plots:
+```{r}
+plotfun("bill_length_mm", "bill_depth_mm", "Bill length (mm)", "Bill depth (mm)", "Penguin bill length vs. bill depth")
+
+plotfun("body_mass_g", "flipper_length_mm", "Body mass (g)", "Flipper length (mm)", "Penguin body mass vs. flipper length")
+```
+
+
+### Try it:
+
+4. Use `plotfun()` to plot two other variables from the `penguins` dataset:
+```{r use-plotfun, eval = FALSE}
+
+```
+
+5. Write and run your own function to make customized plots with the `mtcars` dataset in the chunk below. 
+```{r write-plot-fun, eval = FALSE}
+cars <- mtcars %>%
+  mutate(model = rownames(mtcars)) %>%
+  tibble()
+
+myplotfun <- function(...){
+  ...
+}
+```
