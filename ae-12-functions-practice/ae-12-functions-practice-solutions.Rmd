@@ -1,0 +1,68 @@
+---
+title: "Functions practice - solutions"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+penguins <- penguins
+```
+
+The following exercises ask you to create functions to help you practice writing your own functions. Make sure to test each function. Instructions are provided for using the `penguins` dataset for function testing.
+
+Example: Create a function that will return the sum of 2 integers. Test it using `penguins$bill_depth_mm` and `penguins$bill_length_mm`.
+```{r}
+add_2 <- function(x, y){
+  x + y
+}
+
+add_2(penguins$bill_depth_mm, penguins$bill_length_mm)
+```
+
+1. Create a function that, given a vector, will return TRUE if the number 181 is contained within a vector. Test it using the `flipper_length_mm` vector. Hint: use the `%in%` operator. See [this link](https://www.geeksforgeeks.org/how-to-test-if-a-vector-contains-the-given-element-in-r/) for more help.
+```{r}
+flipper_length_mm <- penguins$flipper_length_mm
+181 %in% flipper_length_mm
+
+contain_181 <- function(x){
+  181 %in% x
+}
+
+contain_181(penguins$year)
+```
+
+2. Create a function that, given a vector and an integer, will return how many times the integer appears inside the vector. Test it using the `flipper_length_mm` vector. Hint: There are several ways you might do this, but try using the `length()` and `which()` functions.  
+```{r}
+ind = which(flipper_length_mm == 185)
+length(ind)
+
+count_integer <- function(x, y){
+ind = which(x == y)
+length(ind)
+}
+
+count_integer(penguins$species, "Adelie")
+```
+
+3. Create a function that, given a vector, will print a tibble containing the mean and the standard deviation of the vector. It will optionally also print the median. Test it using the `flipper_length_mm` vector.
+```{r}
+avg = mean(flipper_length_mm, na.rm = TRUE)
+stdev = sd(flipper_length_mm, na.rm = TRUE)
+med = median(flipper_length_mm, na.rm = TRUE)
+
+tibble(avg = avg,
+       stdev = stdev,
+       med = med)
+
+calc_sum_stats <- function(x, med = FALSE){
+  avg = mean(x, na.rm = TRUE)
+  stdev = sd(x, na.rm = TRUE)
+  med = if(med == TRUE){median(x, na.rm = TRUE)}
+  tibble(avg = avg,
+         stdev = stdev,
+         med = med)
+}
+
+calc_sum_stats(flipper_length_mm, med = TRUE)
+```

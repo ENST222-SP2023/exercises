@@ -1,5 +1,5 @@
 ---
-title: "Open Case Studies: Exploring CO2 emissions across time"
+title: "Open Case Studies: Exploring CO~2~ emissions across time"
 output:
   html_document:
     toc: true
@@ -9,7 +9,7 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(include = TRUE, comment = NA, echo = TRUE,
                       message = FALSE, warning = FALSE, cache = FALSE,
-                      fig.align = "center", out.width = '90%')
+                      fig.align = "center", out.width = '100%')
 ```
 
 ```{r, include = FALSE}
@@ -30,44 +30,51 @@ us_temperature <- read_csv("data/temperature.csv", skip = 4, na = "-99") %>%
   clean_names()
 ```
 
-This case study is adapted from Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-co2-emissions. Exploring CO2 emissions across time (Version v1.0.0).
+This case study is adapted from Wright, Carrie and Ontiveros, Michael and Jager, Leah and Taub, Margaret and Hicks, Stephanie. (2020). https://github.com/opencasestudies/ocs-bp-co2-emissions. Exploring CO~2~ emissions across time (Version v1.0.0).
 
 An interactive version of the case study with much more detail and explanation is available [here](https://rsconnect.biostat.jhsph.edu/ocs-bp-co2-emissions-interactive) for your reference.
 
 
 # Introduction
 
-As anthropogenic greenhouse emissions increase, global temperatures have also increased, leading to cascading effects on the global climate system. The most recent Intergovernmental Panel on Climate Change report concluded global temperatures have increased by xx degrees C since xx, and temperatures are projected to increase by an additional xx degrees by xx (IPCC 2021). Globally, there have also been concurrent increases in the frequency and intensity of extreme weather, including tropical cyclones, droughts, wildfire, flooding, winter storms, and severe rain events. These "natural disasters" have globally led to millions of deaths and economic losses exceeding trillions of US dollars.
+As anthropogenic greenhouse emissions increase, global temperatures have also increased, leading to cascading effects on the global climate system. The most recent Intergovernmental Panel on Climate Change report concluded global temperatures have increased by 2 degrees C since 1880, and temperatures are projected to increase over the next 100 years and beyond (IPCC 2021). 
 
-Greenhouse gas (GHG) emissions cause climate change via the greenhouse effect. CO2 and other greenhouse gases absorb infrared radiation, which traps heat in the atmosphere and makes the planet warmer (US EPA 2020). The most important GHGs directly emitted by humans include carbon dioxide (CO2), methane (CH4), nitrous oxide (N2O), and several fluorine-containing halogenated substances. From the pre- industrial era (i.e., ending about 1750) to 2018, concentrations of the most important GHGs have increased globally by 46, 165, and 23 percent, respectively (IPCC 2013). A variety of sources and sectors currently contribute to anthropogenic greenhouse gas emissions, including transportation, electricity generation, industry, agriculture, commercial, and residential. 
+Globally, there have also been concurrent increases in the frequency and intensity of extreme weather, including tropical cyclones, droughts, wildfire, flooding, winter storms, and severe rain events (IPCC 2020). Climate change alters the frequency and intensity of these events via complex interactions in the global climate system. For example, increasing ocean heat content and atmospheric water content have been linked to severe storm and tropical cyclone intensity. Rising temperatures in arid regions have been linked to drought events. These "natural disasters" have globally led to millions of deaths and economic losses exceeding trillions of US dollars.     
 
-CO2 - a particularly abundant and stable greenhouse gas - is the primary driver of global climate change. CO2 is actually the least heat-trapping gas of the greenhouse gases. However, because CO2 is so much more abundant and stays in the atmosphere much longer than other greenhouse gases, it has been the largest contributor to global warming (US EPA 2020). The global warming potential (GWP) of a greenhouse gas is defined as the ratio of the accumulated radiative forcing within a specific time horizon caused by emitting 1 kilogram of the gas, relative to that of the reference gas, CO2 (IPCC 2013). GWP-weighted emissions are provided in millions of metric tons of CO2 equivalent (MMT CO2 Eq.). CO2 is often used as proxy for all greenhouse gases when analyzing drivers and effects of climate change.
+Greenhouse gas (GHG) emissions cause climate change via the greenhouse effect. CO~2~ and other greenhouse gases absorb infrared radiation, which traps heat in the atmosphere and makes the planet warmer (US EPA 2020). The most important GHGs directly emitted by humans include carbon dioxide (CO~2~), methane (CH~4~), nitrous oxide (N~2~O), and several fluorine-containing halogenated substances. From the pre- industrial era (i.e., ending about 1750) to 2018, concentrations of the most important GHGs have increased globally by 46, 165, and 23 percent, respectively (IPCC 2013). A variety of sources and sectors currently contribute to anthropogenic greenhouse gas emissions, including transportation, electricity generation, industry, agriculture, commercial, and residential. 
 
-Global temperature change does not concurrently track changes in atmospheric CO2 concentrations. Instead, there is typically a lag between greenhouse gas emissions and temperature changes because much of Earth's thermal energy (and CO2) is stored in the ocean (Hansen et al. 2005). Due to a process known as thermal inertia, the heat stored in the ocean will eventually be transferred to the surface of the Earth long after the gases were emitted that resulted in the increased ocean temperature.
+CO~2~ - a particularly abundant and stable greenhouse gas - is the primary driver of global climate change. CO~2~ is actually the least heat-trapping gas of the greenhouse gases. However, because CO~2~ is so much more abundant and stays in the atmosphere much longer than other greenhouse gases, it has been the largest contributor to global warming (US EPA 2020). The global warming potential (GWP) of a greenhouse gas is defined as the ratio of the accumulated radiative forcing within a specific time horizon caused by emitting 1 kilogram of the gas, relative to that of the reference gas, CO~2~ (IPCC 2013). GWP-weighted emissions are provided in millions of metric tons of CO~2~ equivalent (MMT CO~2~ Eq.). CO~2~ is often used as proxy for all greenhouse gases when analyzing drivers and effects of climate change.
 
-In this report, I explore how different countries have contributed to carbon dioxide (CO2) emissions over time and how CO2 emission rates may relate to increasing global temperatures and increased rates of natural disasters and storms. I combine several datasets, including global CO2 emissions since 1751, global energy use since 1960, and US natural disasters and temperature since 1980.
+In this report, I explore how different countries have contributed to carbon dioxide (CO~2~) emissions over time and how CO~2~ emission rates may relate to increasing global temperatures and increased rates of natural disasters and storms. I combine several datasets, including global CO~2~ emissions since 1751, global energy use since 1960, and US natural disasters and temperature since 1980.
 
-My primary questions are:
+**My primary questions are:**
 
-1. How and why have global CO2 emission rates changed over time? How do US emissions compare to other countries?
+1. How and why have global CO~2~ emission rates changed over time? How do US emissions compare to other countries?
 
-2. Are CO2 emissions and US, temperature, and natural disaster frequency in the US associated?
+2. Are CO~2~ emissions and US, temperature, and natural disaster frequency in the US associated?
 
 
 # Data
 
-I focused here on data related to CO2 emissions, as well as other variables that may influence, be influenced by or relate to CO2 emissions (Table 1). Most of the data was accessed from [Gapminder](https://www.gapminder.org/data/) and was originally obtained from the [World Bank](https://www.worldbank.org/en/what-we-do). In addition, I used temperature and natural disaster data that is specific to the United States from the [National Oceanic and Atmospheric Administration (NOAA)](https://www.noaa.gov/). 
+I focused here on data related to CO~2~ emissions, as well as other variables that may influence, be influenced by or relate to CO~2~ emissions (Table 1). Most of the data was accessed from [Gapminder](https://www.gapminder.org/data/) and was originally obtained from the [World Bank](https://www.worldbank.org/en/what-we-do). In addition, I used temperature and natural disaster data that is specific to the United States from the [National Oceanic and Atmospheric Administration (NOAA)](https://www.noaa.gov/). 
 
-Table 1. Summary of data sources
+*Table 1. Summary of data sources*
 
 Data   | Time span | Source  | Original Source   | Description | Citation                                                                    
 -----------|---------------|-------------|-------------|----------------------------|--------
-**`co2_emissions`**  |1751-2014 | [Gapminder](https://www.gapminder.org/data/){target="_blank"}  | [Carbon Dioxide Information Analysis Center (CDIAC)](https://cdiac.ess-dive.lbl.gov/){target="_blank"}  |  CO2 emissions in tonnes or metric tons (equivalent to approximately 2,204.6 pounds) per person by country| NA
+**`co2_emissions`**  |1751-2014 | [Gapminder](https://www.gapminder.org/data/){target="_blank"}  | [Carbon Dioxide Information Analysis Center (CDIAC)](https://cdiac.ess-dive.lbl.gov/){target="_blank"}  |  CO~2~ emissions in tonnes or metric tons (equivalent to approximately 2,204.6 pounds) per person by country| NA
 **`energy_use`** |1960-2015 | [Gapminder](https://www.gapminder.org/data/){target="_blank"}  | [World Bank](https://data.worldbank.org/indicator/EG.USE.PCAP.KG.OE){target="_blank"}  |  Use of primary energy before transformation to other end-use fuels, by country | NA
 **`us_disaster`** | 1980-2019 | [The National Oceanic and Atmospheric Administration (NOAA)](https://www.ncdc.noaa.gov/billions/time-series){target="_blank"}| [The National Oceanic and Atmospheric Administration (NOAA) ](https://www.ncdc.noaa.gov/billions/time-series){target="_blank"}|  US data about: <br> -- Droughts <br> -- Floods <br> -- Freezes <br> -- Severe Storms <br> -- Tropical Cyclones <br> -- Wildfires<br> -- Winter Storms | NOAA National Centers for Environmental Information (NCEI) U.S. Billion-Dollar Weather and Climate Disasters (2020). https://www.ncdc.noaa.gov/billions/, DOI: 10.25921/stkw-7w73
 **us_temperature**  | 1895-2019|  [The National Oceanic and Atmospheric Administration (NOAA)](https://www.ncdc.noaa.gov/cag/national/time-series){target="_blank"}  | [The National Oceanic and Atmospheric Administration (NOAA)](https://www.ncdc.noaa.gov/cag/national/time-series){target="_blank"} | US National yearly average temperature (in Fahrenheit) from 1895 to 2019 | NOAA National Centers for Environmental information, Climate at a Glance: National Time Series, published June 2020, retrieved on June 26, 2020 from https://www.ncdc.noaa.gov/cag/
 
-Note: I didn't use the `skim()` function here to summarize the datasets because some of these datasets are quite large and the output would take up too much space. If that's the case for your data, it's ok to skip this as well.
+**Tip:** If you'd like to include a table with your data summary info in your report, the easiest way to do it is to enter the information into an excel spreadsheet and save it as a .csv file. Then read that file into R and assign it to an object, then use the [`kable()`](https://bookdown.org/yihui/rmarkdown-cookbook/kable.html) function to tell R to format the data frame object as a nice table when you knit your .Rmd.
+
+For example, if I want to knit the first few rows of the `iris` data frame into a nice table, I would use:
+```{r}
+knitr::kable(slice_head(iris, n = 10))
+```
+
+**Tip:** I didn't use the `skim()` function here to summarize the datasets because some of these datasets are quite large and the output would take up too much space. If that's the case for your data, it's ok to skip this as well.
 
 
 # Methods 
@@ -160,16 +167,16 @@ all_data <-
 
 #### Data Visualization
 
-I then used the `all_data` dataset to visually explore how global and country-specific CO2 concentrations have changed over time and how CO2 concentration relates to country-specific energy use. I also explored potential relationships between U.S. energy use, CO2 emissions, temperature change, and natural disasters. Some additional data wrangling was required to summarize variables of interest. I performed these operations in each relevant plotting pipeline, or created new wrangled data objects where necessary. I used the `directlabels` and `viridis` packages to add direct data labels to some plots and modify color palettes.
+I then used the `all_data` dataset to visually explore how global and country-specific CO~2~ concentrations have changed over time and how CO~2~ concentration relates to country-specific energy use. I also explored potential relationships between U.S. energy use, CO~2~ emissions, temperature change, and natural disasters. Some additional data wrangling was required to summarize variables of interest. I performed these operations in each relevant plotting pipeline, or created new wrangled data objects where necessary. I used the `directlabels` and `viridis` packages to add direct data labels to some plots and modify color palettes.
 
 
 # Results and discussion
 
-#### Global energy use and CO2 Emissions
+#### Global energy use and CO~2~ Emissions
 
-Global CO2 emissions have increased over time starting in the 1850s and rapidly accelerating after the 1950s. Energy use has also increased since data reporting began in 1960, indicating a potential correlation between emissions and energy use. 
+Global CO~2~ emissions have increased over time starting in the 1850s and rapidly accelerating after the 1950s. Energy use has also increased since data reporting began in 1960, indicating a potential correlation between emissions and energy use. 
 
-```{r}
+```{r fig1, fig.asp = .5}
 all_data %>%
   filter(indicator %in% c("emissions", "energy_use")) %>%
   group_by(year, label) %>%
@@ -182,10 +189,13 @@ all_data %>%
          y = "", x = "") +
   theme_light()
 ```
+*Figure 1. Long-term global CO~2~ emissions and energy use trends.*
 
-Among the current top 10 emitting countries, the U.S. had the greatest emissions until ~2004. Emissions from China then surpassed those of the U.S and continued to rapidly increase. Per capita emissions generally increased until the ~2000s and then began to decrease for Canada, the US, Germany, and Japan. Emissions continue to increase for the remaining top 10 emitters. Although China currently has the greatest total emissions and India had the third greatest emissions, they rank ninth and tenth in per-capita energy use. A possible explanation for this discrepancy is that other factors that are not represented in these data, such as population and energy production sources, also likely contribute to total emissions. For example, a country's per-capita energy use could be low but total emissions could still be high if the country has a large population. The contribution of renewable energy sources to energy use may also be important. For example, a country could have high energy use, but it could have low CO2 emissions if its energy sources are largely renewable. Information about these additional variables is needed to accurately describe the relationship between energy use and CO2 emissions.
+**Tip:** You can use `fig.asp` to change the aspect ratio of your figure if it is too short or tall when you knit your document ([more info](https://sebastiansauer.github.io/figure_sizing_knitr/). 
 
-```{r}
+Among the current top 10 emitting countries, the U.S. had the greatest emissions until ~2004. Emissions from China then surpassed those of the U.S and continued to rapidly increase. Per capita emissions generally increased until the ~2000s and then began to decrease for Canada, the US, Germany, and Japan. Emissions continue to increase for the remaining top 10 emitters. Although China currently has the greatest total emissions and India had the third greatest emissions, they rank ninth and tenth in per-capita energy use. A possible explanation for this discrepancy is that other factors that are not represented in these data, such as population and energy production sources, also likely contribute to total emissions. For example, a country's per-capita energy use could be low but total emissions could still be high if the country has a large population. The contribution of renewable energy sources to energy use may also be important. For example, a country could have high energy use, but it could have low CO~2~ emissions if its energy sources are largely renewable. Information about these additional variables is needed to accurately describe the relationship between energy use and CO~2~ emissions.
+
+```{r fig2, fig.asp = .5}
 top_10_count <-
   all_data %>%
   filter(indicator == "emissions", year == 2014) %>%
@@ -206,19 +216,20 @@ all_data %>%
          y = "",
          x = "") +
   theme_light() +
-  scale_x_continuous(expand = c(0.3, 0)) +
+  scale_x_continuous(expand = expansion(mult = c(0.05, .6))) +
   geom_dl(aes(label = country), method = list("last.bumpup")) +
   theme(legend.position = "none")
 ```
+*Figure 2. CO~2~ emissions and energy use for the top-10 emitting countries in 2014.*
 
-Note: I used the `directlabels` package here to add labels to my plot. Direct labeling options are available
-[here](http://directlabels.r-forge.r-project.org/docs/index.html) is a list of options. You can also use the `geom_text_repel()` function from the `ggrepel` package. More details are [here](https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html).
+**Tip:** I used the `directlabels` package here to add labels to my plot. Direct labeling options are available
+[here](http://directlabels.r-forge.r-project.org/docs/index.html) is a list of options. You can also use the `geom_text_repel()` function from the `ggrepel` package. More details are [here](https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html). I used `scale_x_continuous(expand...)` to increase the amount of white space on the right side of the figure so that the country line labels would fit inside the plot panel ([more info](https://ggplot2.tidyverse.org/reference/expansion.html).
 
-#### U.S. CO2 emissions, temerature, and natural disasters
+#### U.S. CO~2~ emissions, temerature, and natural disasters
 
 In the U.S., disaster frequency, emissions, and temperatures were all generally below long-term averages before the mid-1990s and above average after the 1990s.
 
-```{r, fig.width=6, fig.height=6}
+```{r fig3, fig.asp = .5}
 data_us <-
   all_data %>%
   filter(country == "United States", year >= 1980, year <= 2010) %>%
@@ -235,13 +246,14 @@ data_us %>%
   theme(axis.text.x = element_text(angle = 90),
          axis.title = element_blank(),
     legend.position = "none")  +
-  labs(title = "US Disasters, Emissions, and Temperatures (1980-2010)",
+  labs(title = "US Disasters (count), Emissions (tonnes), and Temperatures (deg. F)",
     subtitle = "Deviation from 1980-2000 mean")
 ```
+*Figure 3. Disasters, emissions, and temperature anomalies (deviation from 1980-2010 mean).*
 
 The frequency of U.S. disasters has been increasing over time, with fewer than 5 disasters per year prior to 1992, increasing to 15 or more disasters per year after 2010.
 
-```{r}
+```{r fig4}
 us_disaster %>%
   select(year, contains("count")) %>%
   pivot_longer(cols = 2:8) %>%
@@ -259,10 +271,11 @@ us_disaster %>%
   theme_light() +
   theme(legend.position = "bottom")
 ```
+*Figure 4. Frequency of natural disasters in the U.S. from 1908-2019.*
 
 Severe storms have most dramatically increased. Floods, droughts, and wildfires also appear to be more frequently occurring, while freeze event frequency appears to be decreasing. 
 
-```{r}
+```{r fig5}
 us_disaster %>%
   select(year, contains("count")) %>%
   pivot_longer(cols = 2:8) %>%
@@ -278,14 +291,15 @@ us_disaster %>%
   geom_smooth(se = FALSE, color = "#737373", linewidth = 0.5) +
   facet_wrap(~name_label) +
   scale_color_viridis_d(option = "magma", end = 0.9) +
-  labs(x = "", y = "Disaster count", fill = "", title = "U.S. natural disaster frequency trends") +
+  labs(x = "", y = "Disaster count", fill = "", title = "U.S. natural disaster trends") +
   theme_light() +
   theme(legend.position = "none")
 ```
+*Figure 5. Frequency of natural disasters in the U.S. from 1908-2019 with smooth trend line.*
 
-U.S. emissions are possibly related to per capita energy use, but the relationship appears to be evolving over time. From the 1980's to ~2000, emissions increased as energy use increased. However, between ~2000-2010, per-capita energy use returned to 1980's levels. Emissions also decreased, but not to 1980's levels. In other words, there was a shift in emissions per unit of energy use, where more CO2 was emitted for a given amount of energy use after the 2000s. This could be indicative of increased CO2 emissions from sources other than energy use after 2000 despite concurrent decreases in energy use. Indeed, emissions from transportation have been increasing over time.
+U.S. emissions are possibly related to per capita energy use, but the relationship appears to be evolving over time. From the 1980's to ~2000, emissions increased as energy use increased. However, between ~2000-2010, per-capita energy use returned to 1980's levels. Emissions also decreased, but not to 1980's levels. In other words, there was a shift in emissions per unit of energy use, where more CO~2~ was emitted for a given amount of energy use after the 2000s. This could be indicative of increased CO~2~ emissions from sources other than energy use after 2000 despite concurrent decreases in energy use. Indeed, emissions from transportation have been increasing over time.
 
-```{r}
+```{r fig6}
 us_wide <-
   data_us %>%
   select(-label, -diff_from_mean, -mean_val) %>%
@@ -299,42 +313,45 @@ us_wide %>%
                arrow=arrow(length=unit(0.3,"cm")),
                            color = "#9e9e9e") +
   theme_light() +
-    labs(title = "US Energy use and emissions (1980-2014)",
+    labs(title = "US energy use and emissions (1980-2014)",
          x = "Energy use (kg, oil-eq./capita)",
          y = "Emissions (Metric Tonnes)") +
   geom_dl(aes(label = year), method = list("last.bumpup"))
   
 ```
+*Figure 6. U.S. energy use and CO~2~ emissions from 1980-2014.*
 
-There appears to be a positive relationship between emissions and temperature in the U.S., which is consistent with what we know about the linkage between CO2 emissions and temperature change via the greenhouse effect.
+There appears to be a positive relationship between emissions and temperature in the U.S., which is consistent with what we know about the linkage between CO~2~ emissions and temperature change via the greenhouse effect.
 
-```{r}
+```{r fig7}
 us_wide %>%
   ggplot(aes(x = emissions, y = temperature)) +
     geom_point() +
   geom_smooth(method = "lm", se = FALSE) +
   theme_light() +
-    labs(title = "US Emissions and Temperature (1980-2014)",
-         x = "Emissions (Metric Tonnes)",
-         y = "Temperature (Fahrenheit)")
+    labs(title = "US emissions and temperature (1980-2014)",
+         x = "Emissions (tonnes)",
+         y = "Temperature (deg. F)")
 ```
+*Figure 7. U.S. CO~2~ emissions and temperature from 1980-2014.*
 
 There also appears to be a slight positive relationship between temperature and the frequency of disasters. This is consistent with research that draws mechanistic linkages between global temperatures, ocean and atmospheric heat content, and changes in the frequency and intensity of extreme weather events. 
 
-```{r}
+```{r fig8}
 us_wide %>%
   ggplot(aes(x = temperature, y = disasters)) +
     geom_point() +
   geom_smooth(se = FALSE, method = "lm") +
   theme_light() +
-    labs(title = "US Temperature and disasters(1980-2014)",
-         x = "Temperature (Fahrenheit)",
-         y = "Disasters")
+    labs(title = "US temperature and disasters (1980-2014)",
+         x = "Temperature (deg. F)",
+         y = "Disasters (count)")
 ```
+*Figure 8. U.S. CO~2~ temperature and disaster frequency from 1980-2014.*
 
 Just for fun, I also recreated the famous [warming stripes visualization](https://en.wikipedia.org/wiki/Warming_stripes) for US temperatures. The visualization depicts the same data as the temperature anomaly bar plot above, but with an emphasis on using color to convey the relative temperature trend over time.
 
-```{r}
+```{r fig9, fig.asp = .5}
 col_strip <- brewer.pal(11, "RdBu")
 
 all_data %>%
@@ -345,7 +362,7 @@ all_data %>%
   ggplot(aes(x = date, y = 1)) +
     geom_tile(aes(fill = anomaly)) +
     scale_fill_distiller(palette="RdBu", limits=c(-3.1,3.1)) +
-  labs(title ="US Temperature Anomaly", subtitle = "1985-2014", x = "", y = "") +
+  labs(title ="US temperature anomaly", subtitle = "1985-2014", x = "", y = "") +
   scale_x_date(limits = c(as.Date("1895-01-01"), NA),
                date_labels = "%Y",
                breaks = as.Date(c("1910-01-01", "1930-01-01", 
@@ -360,14 +377,15 @@ all_data %>%
         axis.title = element_blank(),
         panel.grid.major = element_blank())
 ```
+*Figure 9. U.S. "climate stripes" from 1895-2014.*
 
 #### Data limitations
 
-An important limitation of this data analysis is that the datasets only include countries and years in which countries were reporting relevant information to the agencies that collected the data. Thus, the data are incomplete. For example, while we have a fairly good sense of CO2 emissions globally for later years, additional emissions were also produced by countries that are not included in the data, especially in earlier years. Another limitation is that some variable were reported on a per capita basis (energy use), while other variables were aggregated to the country level (emissions). Having population data would have been useful for distinguishing for effects of population size on aggregated emissions.
+An important limitation of this data analysis is that the datasets only include countries and years in which countries were reporting relevant information to the agencies that collected the data. Thus, the data are incomplete. For example, while we have a fairly good sense of CO~2~ emissions globally for later years, additional emissions were also produced by countries that are not included in the data, especially in earlier years. Another limitation is that some variable were reported on a per capita basis (energy use), while other variables were aggregated to the country level (emissions). Having population data would have been useful for distinguishing for effects of population size on aggregated emissions.
 
 #### Conclusions
 
-In summary, this case study evaluated CO2 emissions from as far back as 1751 (for some countries) through 2014. My exploratory analyses showed that global levels of CO2 emissions have dramatically increased over time, with some countries responsible for particularly high levels. I also showed that CO2 emissions appear to be related to energy use, temperature, and natural disasters in the U.S., which supports other research that draws mechanistic linkages between these variables (IPCC 2021). My exploratory analyses are, therefore, consistent with the general scientific consensus that anthropogenic GHG emissions are causing climate change. It is vital that we work around the globe to reduce future GHG emissions to mitigate the increased temperatures that we will experience due to previous and existing CO2 emissions, to minimize future warming. Furthermore, we need to prepare for increased rates of natural disasters and how they may impact global social and ecological systems. Evidence suggests that people who have disproportionately less access to resources are the most affected by disasters (IPCC 2021). We need to be particularly mindful of this as we prepare for the future.  
+In summary, this case study evaluated CO~2~ emissions from as far back as 1751 (for some countries) through 2014. My exploratory analyses showed that global levels of CO~2~ emissions have dramatically increased over time, with some countries responsible for particularly high levels. I also showed that CO~2~ emissions appear to be related to energy use, temperature, and natural disasters in the U.S., which supports other research that draws mechanistic linkages between these variables (IPCC 2021). My exploratory analyses are, therefore, consistent with the general scientific consensus that anthropogenic GHG emissions are causing climate change. It is vital that we work around the globe to reduce future GHG emissions to mitigate the increased temperatures that we will experience due to previous and existing CO~2~ emissions, to minimize future warming. Furthermore, we need to prepare for increased rates of natural disasters and how they may impact global social and ecological systems. Evidence suggests that people who have disproportionately less access to resources are the most affected by disasters (IPCC 2021). We need to be particularly mindful of this as we prepare for the future.  
 
 
 # References
@@ -381,6 +399,6 @@ IPCC. 2021. Climate Change 2021: The Physical Science Basis. Contribution of Wor
 
 Melillo, J.M., T.C. Richmond, and G.W. Yohe (eds.). 2014. Climate change impacts in the United States: The third National Climate Assessment. U.S. Global Change Research Program.  
 
-US EPA 2020. Inventory of US Greenhouse Gas Emissions and Sinks: 1990--2018. EPA 430-R-20-002, Tech. Rep. https://www.epa.gov/ghgemissions/inventory-us-greenhouse-gas-emissions-and-sinks.
+US EPA 2020. Inventory of US Greenhouse Gas Emissions and Sinks: 1990--2018. EPA 430-R-20-002, Tech. Rep. https://www.epa.gov/ghgemissions/inventory-us-greenhouse-gas-emissions-and-sinks
 
 
