@@ -1,0 +1,105 @@
+---
+title: "ae-14-iteration-gapminder"
+author: "Cassie Gurbisz"
+date: "3/28/2023"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(gganimate)
+library(ggrepel)
+```
+
+Load gapminder data
+```{r}
+gapminder <- read_csv("https://raw.githubusercontent.com/swcarpentry/r-novice-gapminder/gh-pages/_episodes_rmd/data/gapminder-FiveYearData.csv") %>%
+  clean_names()
+```
+
+Filter the gapminder dataset so that `continent` == "Americas". Use the `map` function to create a plot of gdp_percap vs life_exp for each year. 
+
+In the chunk below, filter the gapminder dataset so that `continent` == "Americas" and `year` == 1995; assign the output to an object called `amer97`. 
+
+Plot `gdp_percap` vs `life_exp` and map the size of the points to `pop` and color to `country`. Set alpha to 0.7 and do not include a legend. Make the y-axis limits 35 to 85 and the x-axis limits 0 to 45000. If you're feeling ambitious, try using the `geom_text_repel` function ([more info here](https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html)) to label each point according to `country`. Create nice axis labels and make the plot title the year by referring directly to the year variable in the amer97 dataset (I provided the code for this below). The goal here is to first make sure the visualization looks how you want.
+
+```{r}
+amer97 <- gapminder %>%
+  filter(continent == "Americas", 
+         year == 1997)
+
+ggplot(amer97, aes(x = gdp_percap, y = life_exp, color = country), alpha = 0.7) +
+  geom_point(aes(size = pop)) +
+  geom_text_repel(aes(label = country)) +
+  labs(x = "GDP per capita", y = "Life expectancy", 
+       title = amer97$year) +
+  scale_color_viridis_d() +
+  theme_light() +
+  theme(legend.position = "none")
+```
+
+Now create a function where the input is a dataframe for any year of the gapminder dataset and the output is a plot like the one you just made. Make the y-axis limits 35 to 85 and the x-axis limits 0 to 45000. Use the `geom_text_repel` function to label each point with `country`. Test the function out using the `amer97` dataframe.
+```{r}
+plot_gap <- function(data){
+ggplot(data, aes(x = gdp_percap, y = life_exp, color = country), alpha = 0.7) +
+  geom_point(aes(size = pop)) +
+  geom_text_repel(aes(label = country)) +
+  labs(x = "GDP per capita", y = "Life expectancy", 
+       title = data$year) +
+  lims(y = c(35, 85),
+       x = c(0, 45000)) +
+  scale_color_viridis_d() +
+  theme_light() +
+  theme(legend.position = "none")
+}
+
+plot_gap(amer97)
+```
+
+Filter the gapminder dataset so that `continent` == "Americas" and then use the `group_split` function to split the resulting dataset into a list, where each element of the list contains a dataframe for each year. Assign the output to an object called `amer_list`
+```{r}
+amer_list <- gapminder %>%
+  filter(continent == "Americas") %>%
+  group_split(year)
+```
+
+Use the `map` function to apply the `plot_gap()` function to each element of `amer_list`.
+```{r}
+map(amer_list, plot_gap)
+```
+
+Now try to write the plot_map function on the fly as an "anonymous function" within the map function. Map the function over each element of `amer_list`. Use the tilde (`~`) to indicate the start of the function. Use `.x` to represent the function argument.
+```{r}
+map(amer_list, ~ggplot(.x, aes(x = gdp_percap, y = life_exp, size = pop, color = country), alpha = 0.7) +
+  geom_point() +
+  labs(x = "GDP per capita", y = "Life expectancy", 
+       title = .x$year) +
+  lims(y = c(35, 85),
+       x = c(0, 45000)) +
+  scale_color_viridis_d() +
+  geom_text_repel(aes(label = country)) +
+  theme_light() +
+  theme(legend.position = "none"))
+```
+
+Bonus fancy plot: Use the `gganimate` package to create an animated version of the plot using the `amer` dataframe created below, where each frame of the animation represents a different year. You don't need to write any functions or use the `map` function. A very similar example is on this [web page](https://gganimate.com/). See if you can use the example as a guide.
+```{r, eval = FALSE}
+amer <- gapminder %>%
+  filter(continent == "Americas") %>%
+  mutate(year = as.integer(year))
+
+ggplot(amer, aes(x = gdp_percap, y = life_exp, size = pop, color = country), alpha = 0.7) +
+  geom_point() +
+  lims(y = c(35, 85),
+       x = c(0, 45000)) +
+  theme(legend.position = "none") +
+  scale_color_viridis_d() +
+  geom_text_repel(aes(label = country)) +
+  theme_light() +
+  labs(x = "GDP per capita", y = "Life expectancy", 
+       title = "Year: {frame_time}") +
+  transition_time(year) +
+  ease_aes("linear") 
+```
+

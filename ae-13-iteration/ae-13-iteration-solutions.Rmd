@@ -1,0 +1,295 @@
+---
+title: "ae-13-iteration-solutions"
+author: "Cassie Gurbisz"
+date: "3/24/2022"
+output: html_document
+---
+
+```{r, include = FALSE}
+library(tidyverse)
+```
+
+# Lists: a special type of vector
+
+We have briefly discussed **atomic** vectors, which can be of type lobical, integer, double, and character, among others. Another type of vector we haven't covered but which we'll need to use moving forward is **list**. 
+
+Lists are a step up in complexity from atomic vectors, because lists can contain other lists. This makes them suitable for representing hierarchical or tree-like structures. You create a list with list():
+```{r}
+x <- list(1, 2, 3)
+x
+```
+
+A very useful tool for working with lists is str() because it focuses on the structure, not the contents.
+```{r}
+str(x)
+
+x_named <- list(a = 1, b = 2, c = 3)
+str(x_named)
+```
+
+Unlike atomic vectors, list() can contain a mix of objects:
+```{r}
+y <- list("a", 1L, 1.5, TRUE)
+str(y)
+```
+
+Lists can even contain other lists!
+```{r}
+z <- list(list(1, 2), list(3, 4))
+str(z)
+```
+
+# Subsetting atomic vectors and lists
+So far we’ve used `dplyr::filter()` to filter the rows in a tibble. `filter()` only works with tibbles, so we’ll need a new tool for vectors: `[`. `[` is the subsetting function, and is called like `x[a]`. There are four types of things that you can subset a vector with:
+
+1. A numeric vector containing only integers. The integers must either be all positive, all negative, or zero. Subsetting with positive integers keeps the elements at those positions:
+```{r}
+x <- c("one", "two", "three", "four", "five")
+x[c(3, 2, 5)]
+```
+
+By repeating a position, you can actually make a longer output than input:
+```{r}
+x[c(1, 1, 5, 5, 5, 2)]
+```
+
+Negative values drop the elements at the specified positions:
+```{r}
+x[c(-1, -3, -5)]
+```
+
+2. Subsetting with a logical vector keeps all values corresponding to a TRUE value. This is most often useful in conjunction with the comparison functions.
+```{r}
+x <- c(10, 3, NA, 5, 8, 1, NA)
+
+# All non-missing values of x
+x[!is.na(x)]
+```
+
+3. If you have a named vector, you can subset it with a character vector:
+```{r}
+x <- c(abc = 1, def = 2, xyz = 5)
+x[c("xyz", "def")]
+```
+Like with positive integers, you can also use a character vector to duplicate individual entries.
+
+4. The simplest type of subsetting is nothing, `x[]`, which returns the complete x. This is not useful for subsetting vectors, but it is useful when subsetting matrices (and other high dimensional structures) because it lets you select all the rows or all the columns, by leaving that index blank. For example, if `x` is 2d, `x[1, ]` selects the first row and all the columns, and `x[, -1]` selects all rows and all columns except the first.
+
+There is an important variation of [ called [[. [[ only ever extracts a single element, and always drops names. It’s a good idea to use it whenever you want to make it clear that you’re extracting a single item, as in a for loop. The distinction between [ and [[ is most important for lists, as we’ll see shortly.
+
+There are three ways to subset a list, which I’ll illustrate with a list named `a`:
+```{r}
+a <- list(a = 1:3, b = "a string", c = pi, d = list(-1, -5))
+```
+
+`[` extracts a sub-list. The result will always be a list.
+```{r}
+str(a[1:2])
+
+str(a[4])
+```
+
+`[[` extracts a single component from a list. It removes a level of hierarchy from the list.
+```{r}
+str(a[[1]])
+
+str(a[[4]])
+```
+
+`$` is a shorthand for extracting named elements of a list. It works similarly to [[ except that you don’t need to use quotes. `$` only works if the elements are named, though.
+```{r}
+a$a
+
+a[["a"]]
+```
+
+The distinction between [ and [[ is really important for lists, because [[ drills down into the list while [ returns a new, smaller list.
+
+
+# The map functions
+
+The pattern of looping over a vector, doing something to each element and saving the results is so common that the purrr package provides a family of functions to do it for you. There is one function for each type of output:
+
+- `map()` makes a list.
+- `map_lgl()` makes a logical vector.
+- `map_int()` makes an integer vector.
+- `map_dbl()` makes a double vector.
+- `map_chr()` makes a character vector.
+
+A map function is one that applies the same action/function to every element of an object (e.g. each entry of a list or a vector, or each of the columns of a data frame). The naming convention of the map functions are such that the type of the output is specified by the term that follows the underscore in the function name.
+
+Consistent with the way of the tidyverse, the first argument of each mapping function is always the data object that you want to map over, and the second argument is always the function that you want to iteratively apply to each element of the input object.
+
+The input object to any map function is always either
+
+- a vector (of any type), in which case the iteration is done over the entries of the vector,
+
+- a list, in which case the iteration is performed over the elements of the list,
+
+- a data frame, in which case the iteration is performed over the columns of the data frame (which, since a data frame is a special kind of list, is technically the same as the previous point).
+
+Fundamentally, maps are for iteration. In the example below we will iterate through the vector c(1, 4, 7) by adding 10 to each entry. This function applied to a single number, which we will call .x, can be defined as
+```{r}
+add_ten <- function(x) {
+  return(x + 10)
+}
+```
+
+The map() function below iterates addTen() across all entries of the vector, .x = c(1, 4, 7), and returns the output as a list
+```{r}
+map(c(1, 4, 7), add_ten)
+```
+
+If we wanted the output of map to be some other object type, we need to use a different function. For instance to map the input to a numeric (double) vector, you can use the `map_dbl()` (“map to a double”) function.
+```{r}
+map_dbl(c(1, 4, 7), add_ten)
+```
+
+To map to a character vector, you can use the `map_chr()` (“map to a character”) function.
+```{r}
+map_chr(c(1, 4, 7), add_ten)
+```
+
+If you want to return a data frame, then you would use the `map_df()` function. However, you need to make sure that in each iteration you’re returning a data frame which has consistent column names. `map_df()` will automatically bind the rows of each iteration.
+
+For this example, we want to return a data frame whose columns correspond to the original number and the number plus ten. We can define an "anonymous" function on the fly within the `map_df()` function.
+```{r}
+map_df(c(1, 4, 7), function(x) {
+  return(tibble(old_number = x, 
+                    new_number = add_ten(x)))
+})
+```
+
+## Tilde-dot shorthand for functions
+To make the code more concise you can use the tilde-dot shorthand for "anonymous functions" (a function that only lives as an argument inside of your `map` function). The notation works by replacing `function(x) {x + 10}` with `~{.x + 10}`
+
+`~` indicates that you have started an anonymous function, and the argument of the anonymous function can be referred to using `.x` (or simply `.`). Unlike normal function arguments that can be anything that you like, the tilde-dot function argument is always `.x`.
+
+Thus, instead of defining the `add_ten()` function separately, we could use the tilde-dot shorthand:
+```{r}
+map_dbl(c(1, 4, 7), ~{.x + 10})
+```
+
+## An example
+
+Here, we will use the `gapminder` dataset to illustrate some `map_` examples. `gapminder` contains information about population, life expectancy and per-capita GDP for each country from 1952-2007.
+```{r}
+gapminder <- read_csv("https://raw.githubusercontent.com/swcarpentry/r-novice-gapminder/gh-pages/_episodes_rmd/data/gapminder-FiveYearData.csv")
+```
+
+Since `gapminder` is a tibble, the `map_` functions will iterate over each column. An example of simple usage of the `map_` functions is to summarize each column. For instance, you can identify the type of each column by applying the `class()` function to each column. Since the output of the `class()` function is a character, we will use the `map_chr()` function:
+```{r}
+gapminder %>% map_chr(class)
+```
+
+If you want to do something a little more complicated, such return a few different summaries of each column in a data frame, you can use map_df(). When things are getting a little bit more complicated, you typically need to define an anonymous function that you want to apply to each column. Using the tilde-dot notation, the anonymous function below calculates the number of distinct entries and the type of the current column (which is accessible as .x), and then combines them into a two-column data frame. Once it has iterated through each of the columns, the map_df function combines the data frames row-wise into a single data frame.
+```{r}
+gapminder %>% 
+  map_df(~(data.frame(n_distinct = n_distinct(.x),
+                      class = class(.x))))
+```
+
+Note that we’ve lost the variable names! The variable names correspond to the names of the objects over which we are iterating (in this case, the column names), and these are not automatically included as a column in the output data frame. You can tell `map_df()` to include them using the `.id` argument of `map_df()`. This will automatically take the name of the element being iterated over and include it in the column corresponding to whatever you set `.id` to.
+```{r}
+gapminder %>% 
+  map_df(~(data.frame(n_distinct = n_distinct(.x),
+                      class = class(.x))),
+         .id = "variable")
+```
+
+You can also loop over distinct values of a categorical variable in a dataset. For example, let's say we want to plot `gdpPercap` vs `lifeExp` for each continent. First we'll create a function to make the graph:
+```{r}
+make_plots <- function(dat){
+  ggplot(dat, aes(x = gdpPercap, y = lifeExp, size = pop)) +
+  geom_point() +
+  labs(x = "Per-capita GDP (USD)", y = "Life expectancy (years)", size = "Population", title = dat$continent)
+}
+```
+
+We can use the `split` function to split the tibble into a list, where each element of the list is a different continent. Then we can use `map` to apply the `make_plot()` function to each element of the list:
+```{r}
+plots <- gapminder %>%
+  split(.$continent) %>%
+  map(make_plots)
+```
+
+We can also write the function on the fly as an anonymous function within the `map` function:
+```{r}
+plots <- gapminder %>%
+  split(.$continent) %>%
+  map(~ggplot(., aes(x = gdpPercap, y = lifeExp, size = pop)) +
+  geom_point() +
+  labs(x = "Per-capita GDP (USD)", y = "Life expectancy (years)", size = "Population", title = .$continent))
+```
+
+What if we want to create a separate plot for each contenent AND year? We can get fancy using the `map2()` function, which  maps over two objects instead of one. The first two arguments are the two objects you want to iterate over, and the third is the function (with two arguments, one for each object).
+
+    map2(.x = object1, # the first object to iterate over
+     .y = object2, # the second object to iterate over
+     .f = plotFunction(.x, .y))
+
+First, you need to define a vector (or list) of continents and a paired vector (or list) of years that you want to iterate through. The code below generates a tibble containing all possible pairs of continents and years.
+```{r}
+continent_year <- gapminder %>% distinct(continent, year)
+continent_year
+```
+
+Then we extract the continent and year pairs as separate vectors. 
+```{r}
+continents <- continent_year %>% 
+  pull(continent) %>% 
+  as.character
+
+years <- continent_year %>% 
+  pull(year)
+```
+
+We should figure out what the code will be before jumping straight into the map function:
+```{r}
+# try to figure out the code for the first example
+.x <- continents[1]
+.y <- years[1]
+# make a scatterplot of GDP vs life expectancy in all Asian countries for 1952
+gapminder %>% 
+  filter(continent == .x,
+         year == .y) %>%
+  ggplot() +
+  geom_point(aes(x = gdpPercap, y = lifeExp)) +
+  ggtitle(paste(.x, .y, sep = " "))
+```
+
+This seems to have worked. So you can then copy-and-paste the code into the map2 function
+```{r}
+plot_list <- map2(.x = continents, 
+                  .y = years, 
+                  .f = ~{
+                    gapminder %>% 
+                      filter(continent == .x,
+                             year == .y) %>%
+                      ggplot() +
+                      geom_point(aes(x = gdpPercap, y = lifeExp)) +
+                      ggtitle(paste(.x, .y, sep = " "))
+                  })
+```
+
+And you can look at a few of the entries of the list to see that they make sense
+```{r}
+plot_list[[1]]
+plot_list[[10]]
+```
+
+You can then use `map` to save all of your plot image files to a folder! I'll just save the first three figures in the list here so we don't take up too much space in the R Studio Cloud workspace. We'll use the `imap` function, or "indexed map", which is short hand for `map2(x, names(x))`. In other words, `imap` takes 2 inputs, like `map2`, but the second input (`.y`) represents the index values (in this case, the names) of your first input object (`.x`).
+```{r}
+#first name each element of the list according to the continents-years vectors
+names(plot_list) <- paste(continents, years, sep = "-")
+
+imap(plot_list[1:3], ~{ggsave(.x, file = paste0("figs/", .y, ".png"))})
+```
+
+
+## Other useful ways to use `map`
+
+- [Quickly read in lots of files](http://jenrichmond.rbind.io/post/use-map-to-read-many-csv-files/)
+
+
+*Exercises adapted from R for Data Science Chapters [20](https://r4ds.had.co.nz/vectors.html) and [21](https://r4ds.had.co.nz/iteration.html) and [Learn to Purr](https://www.rebeccabarter.com/blog/2019-08-19_purrr/).*

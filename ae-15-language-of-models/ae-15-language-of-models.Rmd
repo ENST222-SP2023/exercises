@@ -1,0 +1,85 @@
+---
+title: "The language of models"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(skimr)
+```
+
+The goal of this exercise is to practice identifying relationships and differences in a dataset. First, let's read in the Paris Paintings dataset. 
+
+```{r}
+pp <- read_csv("paris-paintings.csv")
+```
+
+## Examine the dataset
+
+1. (a) Use the `skim()` function to look at what variables are contained in the data. 
+```{r}
+
+```
+
+(b) What are some categorical variables that have many unique values? What categorical variables have only a few unique values? Hint: This info is provided in the `n_unique` column.
+
+(c) What are the unique values of the `dealer` variable? What about the `school_pntg` variable? What about the `shape` variable? What do each of these uniqe values represent? (Metadata are available [here](http://www2.stat.duke.edu/~cr173/Sta112_Fa16/data/paris_paintings.html)).
+
+(d) Some of the numeric variables have a wide range of possible values while others are either 1 or 0. List one numeric variable that has a range of values and provide the max and min value. 
+
+(e) List one numeric variable that only has values of 1 or 0. What do the 1 and 0 represent? Are these really numeric variables or are the categorical variables? Why?
+
+
+## Exploring relationships
+
+When typically test for relationships between two continuous numeric variables. We can either test whether they are correlated with each other (when x increases/decreases, y increases/decreases) or whether change in one is expected to predict change in the other (y increases/decreases because x increases/decreases). For example, in the slides, we visualized the relationship between painting height and width:
+
+```{r}
+ggplot(pp, aes(x = Width_in, y = Height_in)) +
+  geom_point(alpha = 0.5) +
+  labs(x = "Width (in)", y = "Height (in)",
+       title = "Height vs. width of paintings, by landscape features",
+    subtitle = "Paris auctions, 1764 - 1780") +
+  theme_light()
+```
+
+Here, maybe we want to be able to test whether changes in width can predict changes in height. In that case, width is the independent/predictor variable and height is the dependent/response variable. 
+
+And we can also explore whether that relationship is different depending on the value of a categorical variable, such as whether the painting is a landscape or portrait:
+```{r}
+ggplot(pp, aes(x = Width_in, y = Height_in, color = factor(landsALL))) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm", se = FALSE, fullrange = TRUE) +
+  labs(
+    title = "Height vs. width of paintings, by landscape features",
+    subtitle = "Paris auctions, 1764 - 1780",
+    x = "Width (in)",
+    y = "Height (in)",
+    color = "landscape"
+  ) +
+  scale_color_manual(values = c("#E48957", "#071381")) +
+  theme_light()
+```
+
+2. Create some additional plots to explore whether there might be relationships between other continuous numeric variables and whether those relationship might differ depending on the value of a categorical variable. For each plot you make, identify the independent/predictor variable and the dependent/response variable.
+```{r}
+
+```
+
+We can also use statistical models to test for differences in a continuous numeric variable across different levels of a categorical variable. We often use boxplots to visualize these differences. For example, we might test whether the log of price is different depending on the painting school (`school_pntg`):
+
+```{r}
+ggplot(pp, aes(x = school_pntg, y = logprice, fill = school_pntg)) +
+  geom_boxplot(alpha = 0.7) +
+  labs(x = "School", y = "Price (livres)",
+       title = "Painting price by school",
+       subtitle = "Paris auctions, 1764 - 1780") +
+  theme_light() +
+  theme(legend.position = "none")
+```
+
+3. Create some additional plots to explore whether there are differences in a continuous numerical variable across different levels of a categorical variable.
+```{r}
+
+```
+
