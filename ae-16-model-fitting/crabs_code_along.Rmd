@@ -1,0 +1,128 @@
+---
+title: "Modeling fiddler crab size across latitudes"
+output: github_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(tidymodels)
+library(lterdatasampler)
+```
+
+## Peek at the data
+
+```{r data-glimpse}
+glimpse(pie_crab)
+```
+
+## Visually explore the data
+
+Create a scatter plot that maps latitude to the x-axis and size to the y-axis. What relationship could we test for using a statistical model?
+```{r plot-scatter}
+
+```
+
+Create a boxplot that maps name to the y-axis and size to the x-axis. What difference could we test for using a statistical model?
+```{r plot-box}
+
+```
+
+
+## Crab size vs. latitude
+
+Fitting the model step by step:
+```{r step-by-step}
+linear_reg() %>%                                # specify: what model will we fit?
+  set_engine("lm") %>%                          # set engine : how will we fit the model?
+  fit(size ~ latitude, data = pie_crab)        # fit: actually fit model based on formula
+```
+
+Save the model output to an object called `crab_lat_fit`.
+```{r fit-crab_lat_fit}
+
+```
+
+Now we can examine our model output.
+```{r look-at-crab_lat_fit}
+#look at model output
+
+
+#get the object names for crab_lat_fit output
+
+
+#look at some of the model output objects 
+
+
+
+```
+
+Here, we tidy the model parameter output into a tidy dataframe. What does the estimate value of the intercept represent? What does the latitude estimate represent? What does the p-value represent?
+```{r tidy-crab_lat_fit}
+
+```
+
+We can also create tidy output for overall model statistics. What does the R-squared represent? What does the p-value represent?
+```{r glance-crab_lat_fit}
+
+```
+
+Here, we create a table containing observed values (`size`, `latitude`), fitted values (`.fitted`) (i.e., expected or model-fitted size for each latitude), residuals (`.resid`) (i.e., difference between expected/fitted size and observed size for each latitude), and several other statistics that we won't talk about right now.
+```{r augment-crab_lat_fit}
+
+```
+
+And we can use the augment table to check our residuals by plotting the fitted values (expected values of size) vs the residuals (the difference between the fitted size values and the actual size observations). The points on the plot should look random - if there is any type of pattern, then there might be another variable that is not included in the model but has an effect on crab size.
+```{r plot-resid}
+
+```
+
+
+## Crab size vs. name (sample location)
+
+Fitting the model step by step: 
+
+-specify: what model will we fit? 
+-set engine : how will we fit the model? 
+-fit: actually fit model based on formula
+```{r}
+                                
+```
+
+Save the model output to an obmect called `crab_site_fit`.
+```{r}
+
+```
+
+Examine our model output.
+```{r look-at-crab_site_fit}
+#look at model output
+
+
+#get the object names for crab_lat_fit output
+
+
+#look at some of the model output objects 
+
+```
+
+Here, we tidy the model output into a tidy dataframe. What does the value of the intercept represent? What do the remaining values represent?
+```{r tidy-crab_site_fit}
+
+```
+
+We can also create tidy output for model statistics.
+```{r glance-crab_site_fit}
+
+```
+
+Here, we create a table containing observed values (`size`, `latitude`), fitted values (`.fitted`) (i.e., expected/fitted size for each site), residuals (`.resid`) (i.e., difference between expected/fitted size and observed size for each latitude).
+```{r crab_site_fit}
+
+```
+
+And we can use it to check our residuals by plotting the fitted values (expected values of size) vs the residuals (the difference between the fitted size values and the actual size observations). Does our model seem to be a good fit?
+```{r}
+
+```
