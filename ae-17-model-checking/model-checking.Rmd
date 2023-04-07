@@ -1,0 +1,98 @@
+---
+title: "Untitled"
+author: "Cassie Gurbisz"
+date: "4/5/2022"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+data(penguins)
+```
+
+Plot bill length vs bill depth and add a linear fit line using `geom_smooth(method = "lm")`. Add a linear fit line using `geom_smooth(method = "lm")`.
+```{r}
+
+```
+
+Fit a linear model that predicts bill_depth based on bill_length. Assign the model output to an object called `bill_mod`.
+```{r}
+
+```
+
+Use the `tidy()` and `glance()` functions to look at the model statistics. How would you describe the probability that the coefficient values are due to random chance (based on the coefficients and corresponding p-values)? How would you describe the overall model fit (based on the r.squared value)?
+```{r}
+
+```
+
+Use the `augment()` function to produce a dataframe containing the fitted and residual values. Assign the output to an object called `bill_aug`.
+```{r}
+
+```
+
+Using the `bill_aug` dataframe, plot the `.fitted` values vs. the `.resid` values. Are there any discernible patterns and or trends in the fitted vs. residuals plot?
+```{r}
+
+```
+
+Now plot bill length vs bill depth again but color the points by species. How is the relationship between bill length and depth different from the relationship when we did not include species?
+```{r}
+
+```
+
+Write a function that, given a dataframe, fits a linear model to the data that predicts bill depth as a function of bill length. The function output should be a list containing two elements: the model coefficients and overall fit statistics. Then use `map()` to apply the function to each species in the penguin dataset. 
+```{r}
+fit_bill <- function(x) {
+  mod = linear_reg() %>%
+  set_engine("lm") %>%
+  fit(bill_depth_mm ~ bill_length_mm, data = x)
+  out = list(tidy(mod), glance(mod))
+}
+
+penguins %>%
+  split(.$species) %>%
+  map(fit_bill)
+```
+
+As an aside, this is an example of Simpson's Paradox - a trend or result that is present when data is put into groups that reverses or disappears when the data is combined. Simpson’s paradox showcases the importance of skepticism and interpreting data with respect to the real world, and also the dangers of oversimplifying a more complex truth by trying to see the whole story from a single data-viewpoint.
+
+Creating a separate model for each species is ok, but we can also fit a model that includes species as a predictor variable so that we are explicitly modeling the variance in bill depth associated with each species. One way to do that is to add species to our fit equation. 
+
+The `mod1` output contains an intercept, which is the expected bill depth for Adelie penguins when bill length is 0. It contains a slope, which is how much bill depth is expected to change for 1 unit increase in bill length. And it contains two more coefficients: one reflects how much higher/lower the intercept is for Chinstrap pengunis vs Adelie and the other reflects the intercept difference for Gentoo penguins. 
+
+So when we **add** a categorical variable to the model fit equation, we are fitting a different line for each level of that categorical variable. Our assumption is that the slope of the lines is the same, but the intercepts are different.
+
+In stats courses, this type of model is called an ANCOVA (analysis of covariance).
+```{r}
+mod1 <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(bill_depth_mm ~ bill_length_mm + species, data = penguins)
+
+tidy(mod1)
+glance(mod1)
+mod1aug <- augment(mod1$fit)
+
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  geom_line(mod1aug, mapping = aes(x = bill_length_mm, y = .fitted, color = species))
+```
+
+We can also fit a line for each level of the categorical variable with the assumption that the slopes are also different. To fit this type of model, we **multiply** our numeric predictor variable by the categorical variable.
+
+The model output is similar as above, but now the `bill_length_mm` slope estimate is just for adelie penguins. The `bill_length_mm:speciesChinstrap` term is the difference between in slope between chinstrap and adelie penguins and `bill_length_mm:speciesGentoo` term is the difference between in slope between chinstrap and gentoo penguins.
+```{r}
+mod2 <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(bill_depth_mm ~ bill_length_mm * species, data = penguins)
+
+tidy(mod2)
+glance(mod2)
+mod2aug <- augment(mod2$fit)
+
+ggplot(penguins, aes(x = bill_length_mm, y = bill_depth_mm, color = species)) +
+  geom_point() +
+  geom_line(mod2aug, mapping = aes(x = bill_length_mm, y = .fitted, color = species))
+```
+
+Which is the most "parsimonious model"? (A parsimonious model is a model that accomplishes the desired level of explanation or prediction with as few predictor variables as possible)
