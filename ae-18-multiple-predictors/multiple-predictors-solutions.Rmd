@@ -1,0 +1,68 @@
+---
+title: "Multiple predictors"
+author: "Cassie Gurbisz"
+date: "4/5/2022"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+```
+
+Load the crickets dataset, which includes rate of cricket chirps per minute, ambient temperature (deg C), and cricket species. 
+```{r}
+data(crickets)
+```
+
+1. Fit a model called `temp_sp_rate_fit` that predicts `rate` as a function of `temp` and `species`. Include an interaction term. 
+```{r temp_sp_rate_fit}
+temp_sp_rate_fit <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(rate ~ temp * species, data = crickets)
+```
+
+2. Examine the model estimates and adjusted R2. Write the equation of the model and note the adjusted R2. 
+```{r temp_sp_rate_fit-stats}
+tidy(temp_sp_rate_fit)
+glance(temp_sp_rate_fit)
+```
+
+rate = -11.0 + 3.75 x temp - 4.35 x speciesO. niveus - 0.234 x temp x speciesO. niveus
+
+3. Write the equation for just O. exclamationis.
+
+rate = -11 + 3.75 x temp 
+
+4. Write the equation for just O. niveus.
+
+rate = -15.35  + 3.516 x temp
+
+5. Create a plot of rate vs temp, with points colored by species. Add the regression lines for each species using the augmented model fit output.
+```{r plot_fit}
+cricket_fit_aug <- augment(temp_sp_rate_fit$fit)
+
+ggplot(crickets, aes(x = temp, y = rate, color = species)) +
+  geom_point() +
+  geom_line(cricket_fit_aug, mapping = aes(x = temp, y = .fitted, color = species))
+```
+
+5. Fit a model called `temp_sp_rate_fit2` that predicts `rate` as a function of `temp` and `species` without an interaction term. Look at the model estimates and R2 for both models. Which is the more parsimonious model (`temp_sp_rate_fit` or `temp_rate_fit`)?
+```{r temp_rate_fit}
+temp_sp_rate_fit2 <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(rate ~ temp + species, data = crickets)
+
+tidy(temp_sp_rate_fit2)
+glance(temp_sp_rate_fit2)
+```
+
+6. Create a plot of rate vs temp, with points colored by species. Add the regression lines for each species using the augmented model fit output.
+```{r plot_fit2}
+cricket_fit_aug2 <- augment(temp_sp_rate_fit2$fit)
+
+ggplot(crickets, aes(x = temp, y = rate, color = species)) +
+  geom_point() +
+  geom_line(cricket_fit_aug2, mapping = aes(x = temp, y = .fitted, color = species))
+```
+
