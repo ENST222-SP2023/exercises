@@ -31,14 +31,14 @@ ggplot(aes(x = stem_length, y = stem_dry_mass, color = watershed)) +
   geom_smooth(method = "lm", se = FALSE)
 ```
 
-Define a model that predicts `stem_dry_mass` as a function of `stem_length`, with `watershed` included as an interaction term. Assign the model output to an object called `maple_mod`.
+1. Define a model that predicts `stem_dry_mass` as a function of `stem_length`, with `watershed` included as an interaction term. Assign the model output to an object called `maple_mod`.
 ```{r}
 maple_mod_int <- linear_reg() %>%
   set_engine("lm") %>%
   fit(stem_dry_mass ~ stem_length * watershed, data = hbr_maples)
 ```
 
-Use the `tidy()` function to look at the model coefficients and write out the equation of each line that was fit to the data. Also look at the p-values for your model terms. What do the p-values indicate about our model terms?
+2. Use the `tidy()` function to look at the model coefficients and write out the equation of each line that was fit to the data. Also look at the p-values for your model terms. What do the p-values indicate about our model terms?
 ```{r}
 tidy(maple_mod_int)
 ```
@@ -46,14 +46,14 @@ tidy(maple_mod_int)
 stem dry mass_ref = 0.00196*stem_length + 0.007
 stem dry mass_w1 =  0.002068*stem_length + 0.00661
 
-Let's also define a model that predicts `stem_dry_mass` as a function of `stem_length`, with `watershed` included as a main effect. Assign the model output to an object called `maple_mod_main`.
+3. Let's also define a model that predicts `stem_dry_mass` as a function of `stem_length`, with `watershed` included as a main effect. Assign the model output to an object called `maple_mod_main`.
 ```{r}
 maple_mod_main <- linear_reg() %>%
   set_engine("lm") %>%
   fit(stem_dry_mass ~ stem_length + watershed, data = hbr_maples)
 ```
 
-Use the `tidy()` function to look at the model coefficients and write out the equation of each line that was fit to the data. Also look at the p-values for your model terms. What do the p-values indicate about our model terms?
+4. Use the `tidy()` function to look at the model coefficients and write out the equation of each line that was fit to the data. Also look at the p-values for your model terms. What do the p-values indicate about our model terms?
 ```{r}
 tidy(maple_mod_main)
 ```
@@ -61,7 +61,7 @@ tidy(maple_mod_main)
 stem dry mass_ref = 0.000251*stem_length + 0.00252
 stem dry mass_w1 =  0.000251*stem_length + 0.00359
 
-Use the `glance()` function to look at model fit statistics for each of the models. Which is the better model to use? Why?
+5. Use the `glance()` function to look at model fit statistics for each of the models. Which is the better model to use? Why?
 ```{r}
 glance(maple_mod_int)
 glance(maple_mod_main)
@@ -69,7 +69,16 @@ glance(maple_mod_main)
 
 The best model to use would be `maple_mod_main`. The adjusted r-squared is only slightly lower than the adjusted r-squared for `maple_mod_int` and all of the model terms have very small p-values, which indicates that arriving at those model terms due to random chance alone is very small. The high p-values for the difference in slope and intercept when watershed = W1 and different slope indicate that there is a high probability that those differences are due to random chance.
 
-Based on your selected model, what inferences can we draw about the effect of calcium treatment (which occurred in watershed W1) on the relationship between stem length and stem dry mass?
+6. Based on your selected model, what inferences can we draw about the effect of calcium treatment (which occurred in watershed W1) on the relationship between stem length and stem dry mass?
 
 For each mm increase in stem_length, stem_dry_mass increases by 0.000251 g. Overall, for a given stem length, stem dry mass is greater in calcium-treated watersheds compared to the reference watershed. This could indicate that stems are thicker or denser and, therefore, more robust due to calcium treatment.
+
+7. Plot `stem_length` vs `stem_dry_mass` and add the best fit lines from `maple_mod_main`. When we use `geom_smooth()` to add regression lines to a plot, the default is to fit an interaction model to the data, which has varying slopes and intercepts. In order to add lines with the same slope but different intercepts, we need to use the `geom_abline()` function to add each line manually. The arguments for `geom_abline()` are slope and the intercept. We can get these from our tidy model ouptput. We can then use `scale_color_manual()` to manually control the colors of our points, and then use those colors to also define our line colors.
+```{r}
+ggplot(hbr_maples, aes(x = stem_length, y = stem_dry_mass, color = watershed)) +
+  geom_point() +
+  geom_abline(slope = 0.000251, intercept = 0.00252, color = "#eb34d8") +
+  geom_abline(slope = 0.000251, intercept = 0.0112, color = "#1f7e8f") +
+  scale_color_manual(values = c("#eb34d8", "#1f7e8f"))
+```
 

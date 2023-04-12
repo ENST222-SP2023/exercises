@@ -1,0 +1,80 @@
+---
+title: "Regression with multiple predictors - practice"
+author: "Cassie Gurbisz"
+date: "4/12/2023"
+output: html_document
+---
+
+Load packages
+```{r}
+library(tidyverse)
+library(tidymodels)
+library(lterdatasampler)
+```
+
+Look at `hbr_maples` dataset, which contains observations on sugar maple seedlings in untreated and calcium-amended watersheds at Hubbard Brook Experimental Forest in New Hampshire.
+```{r}
+hbr_maples <- hbr_maples %>%
+  filter(year == 2003)
+
+glimpse(hbr_maples)
+```
+
+Growth of sugar maples (Acer saccharum), known for maple syrup, can be stunted due to soil acidification from prolonged acid rain, which leaches calcium - a nutrient important for plant growth - from soils and stresses maple seedlings. To investigate the impact of soil calcium supplementation on sugar maple seedling growth, researchers at Hubbard Brook Long Term Ecological Research (LTER) site recorded sugar maple seedling health based on height, leaf area, biomass, and chlorophyll content in untreated and previously calcium-treated watersheds. By comparing seedling growth in calcium-treated (W1) versus untreated (Reference) watersheds, calcium impacts on sugar maple seedling growth can be explored.
+
+First, let's look at the relationship between stem length and stem dry mass. It looks like we might want to fit an interaction model, where we fit two model equations where both the slopes and intercepts vary depending on watershed.
+```{r}
+hbr_maples %>%
+  filter(leaf_dry_mass < 0.3, year == 2003) %>%
+ggplot(aes(x = stem_length, y = stem_dry_mass, color = watershed)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE)
+```
+
+1. Define a model that predicts `stem_dry_mass` as a function of `stem_length`, with `watershed` included as an interaction term. Assign the model output to an object called `maple_mod`.
+```{r}
+maple_mod_int <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(...)
+```
+
+2. Use the `tidy()` function to look at the model coefficients and write out the equation of each line that was fit to the data. Also look at the p-values for your model terms. What do the p-values indicate about our model terms?
+```{r}
+
+
+```
+
+
+3. Let's also define a model that predicts `stem_dry_mass` as a function of `stem_length`, with `watershed` included as a main effect. Assign the model output to an object called `maple_mod_main`.
+```{r}
+maple_mod_main <- linear_reg() %>%
+  set_engine("lm") %>%
+  fit(...)
+```
+
+4. Use the `tidy()` function to look at the model coefficients and write out the equation of each line that was fit to the data. Also look at the p-values for your model terms. What do the p-values indicate about our model terms?
+```{r}
+
+
+```
+
+
+5. Use the `glance()` function to look at model fit statistics for each of the models. Which is the better model to use? Why?
+```{r}
+
+
+```
+
+
+6. Based on your selected model, what inferences can we draw about the effect of calcium treatment (which occurred in watershed W1) on the relationship between stem length and stem dry mass?
+
+
+7. Plot `stem_length` vs `stem_dry_mass` and add the best fit lines from `maple_mod_main`. When we use `geom_smooth()` to add regression lines to a plot, the default is to fit an interaction model to the data, which has varying slopes and intercepts. In order to add lines with the same slope but different intercepts, we need to use the `geom_abline()` function to add each line manually. The arguments for `geom_abline()` are slope and the intercept. We can get these from our tidy model ouptput. We can then use `scale_color_manual()` to manually control the colors of our points, and then use those colors to also define our line colors.
+```{r}
+ggplot(hbr_maples, aes(x = stem_length, y = stem_dry_mass, color = watershed)) +
+  geom_point() +
+  geom_abline(slope = ..., intercept = ..., color = "#eb34d8") +
+  geom_abline(slope = ..., intercept = ..., color = "#1f7e8f") +
+  scale_color_manual(values = c("#eb34d8", "#1f7e8f"))
+```
+
