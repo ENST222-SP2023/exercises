@@ -1,9 +1,6 @@
 ---
 title: "Open Case Studies: Exploring CO~2~ emissions across time"
-output:
-  html_document:
-    toc: true
-    toc_float: true
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
@@ -189,6 +186,7 @@ all_data %>%
          y = "", x = "") +
   theme_light()
 ```
+
 *Figure 1. Long-term global CO~2~ emissions and energy use trends.*
 
 **Tip:** You can use `fig.asp` to change the aspect ratio of your figure if it is too short or tall when you knit your document ([more info](https://sebastiansauer.github.io/figure_sizing_knitr/). 
@@ -220,6 +218,7 @@ all_data %>%
   geom_dl(aes(label = country), method = list("last.bumpup")) +
   theme(legend.position = "none")
 ```
+
 *Figure 2. CO~2~ emissions and energy use for the top-10 emitting countries in 2014.*
 
 **Tip:** I used the `directlabels` package here to add labels to my plot. Direct labeling options are available
@@ -249,6 +248,7 @@ data_us %>%
   labs(title = "US Disasters (count), Emissions (tonnes), and Temperatures (deg. F)",
     subtitle = "Deviation from 1980-2000 mean")
 ```
+
 *Figure 3. Disasters, emissions, and temperature anomalies (deviation from 1980-2010 mean).*
 
 The frequency of U.S. disasters has been increasing over time, with fewer than 5 disasters per year prior to 1992, increasing to 15 or more disasters per year after 2010.
@@ -271,6 +271,7 @@ us_disaster %>%
   theme_light() +
   theme(legend.position = "bottom")
 ```
+
 *Figure 4. Frequency of natural disasters in the U.S. from 1908-2019.*
 
 Severe storms have most dramatically increased. Floods, droughts, and wildfires also appear to be more frequently occurring, while freeze event frequency appears to be decreasing. 
@@ -295,6 +296,7 @@ us_disaster %>%
   theme_light() +
   theme(legend.position = "none")
 ```
+
 *Figure 5. Frequency of natural disasters in the U.S. from 1908-2019 with smooth trend line.*
 
 U.S. emissions are possibly related to per capita energy use, but the relationship appears to be evolving over time. From the 1980's to ~2000, emissions increased as energy use increased. However, between ~2000-2010, per-capita energy use returned to 1980's levels. Emissions also decreased, but not to 1980's levels. In other words, there was a shift in emissions per unit of energy use, where more CO~2~ was emitted for a given amount of energy use after the 2000s. This could be indicative of increased CO~2~ emissions from sources other than energy use after 2000 despite concurrent decreases in energy use. Indeed, emissions from transportation have been increasing over time.
@@ -319,6 +321,7 @@ us_wide %>%
   geom_dl(aes(label = year), method = list("last.bumpup"))
   
 ```
+
 *Figure 6. U.S. energy use and CO~2~ emissions from 1980-2014.*
 
 There appears to be a positive relationship between emissions and temperature in the U.S., which is consistent with what we know about the linkage between CO~2~ emissions and temperature change via the greenhouse effect.
@@ -333,6 +336,7 @@ us_wide %>%
          x = "Emissions (tonnes)",
          y = "Temperature (deg. F)")
 ```
+
 *Figure 7. U.S. CO~2~ emissions and temperature from 1980-2014.*
 
 There also appears to be a slight positive relationship between temperature and the frequency of disasters. This is consistent with research that draws mechanistic linkages between global temperatures, ocean and atmospheric heat content, and changes in the frequency and intensity of extreme weather events. 
@@ -347,6 +351,7 @@ us_wide %>%
          x = "Temperature (deg. F)",
          y = "Disasters (count)")
 ```
+
 *Figure 8. U.S. CO~2~ temperature and disaster frequency from 1980-2014.*
 
 Just for fun, I also recreated the famous [warming stripes visualization](https://en.wikipedia.org/wiki/Warming_stripes) for US temperatures. The visualization depicts the same data as the temperature anomaly bar plot above, but with an emphasis on using color to convey the relative temperature trend over time.
@@ -377,6 +382,7 @@ all_data %>%
         axis.title = element_blank(),
         panel.grid.major = element_blank())
 ```
+
 *Figure 9. U.S. "climate stripes" from 1895-2014.*
 
 #### Data limitations
