@@ -1,0 +1,236 @@
+---
+title: "Make a map!"
+author: "Cassie Gurbisz"
+date: "4/24/2023"
+output: html_document
+---
+
+This exercise will walk you through the steps you can follow to create a map of study sites in R. 
+
+Map code is adapted from [Drawing beautiful maps programmatically with R, sf and ggplot2 - Part 2: Layers](https://raw.githubusercontent.com/r-spatial/r-spatial.org/gh-pages/_rmd/2018-10-03-ggplot2-sf-2.Rmd) by Mel Moreno and Mathieu Basille. 
+
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(
+    message = FALSE,
+    warning = FALSE,
+    cache = TRUE,
+    tidy = FALSE,
+    fig.width = 7,
+    fig.height = 7,
+    out.width = "65%")
+
+library(tidyverse)
+library(sf)
+library(maps)
+library(tools)
+library(ggspatial)
+library(ggsflabel)
+```
+
+# Example code
+
+### Load and create spatial data for your study site, state, counties, and cities.
+```{r}
+#Create a tibble containing the latitude and longitude coordinates of the study sites and the name of each site
+sites <- tibble(longitude = c(-80.144005, -80.109), latitude = c(26.479005, 
+    26.83), name = c("Site 1", "Site 2"))
+
+#Convert the sites tibble to an `sf` object; use crs (coordinate reference system) 4326.
+sites <- st_as_sf(sites, coords = c("longitude", "latitude"), crs = 4326)
+
+#load the states sf object and modify the state names (contained in the ID column) so they begin with uppercase letters
+states <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
+  mutate(ID = toTitleCase(ID))
+
+#load the counties sf object and filter so that county ID contains the name "florida"
+counties <- st_as_sf(maps::map("county", plot = FALSE, fill = TRUE)) %>%
+  filter(str_detect(ID, "florida")) %>%
+  mutate(area = as.numeric(st_area(st_make_valid(geom))))
+
+#create a tibble containing the names and coordinates of major cities in the state
+cities <- tibble(state = rep("Florida", 4), 
+                 city = c("Miami", "Orlando", "Jacksonville", "Sarasota"), 
+                 latitude = c(25.7616798, 28.5383355, 30.3321838, 27.3364347), 
+                 longitude = c(-80.1917902, -81.3792365, -81.655651, -82.5306527))
+
+#convert the cities tibble to an `sf` object using crs = 4326
+cities <- st_as_sf(cities, coords = c("longitude", "latitude"), crs = 4326)
+```
+
+### Create a map 
+
+The map should contain: 
+
+- state polygons, labeled with state name
+- county polygons plotted with a different fill color than the state polygons
+- city points, labeled with city names in smaller, lighter, italicized text
+- study site points with contrasting marker colors and study site name labels with rectangles drawn around the labels
+- a north arrow and scale bar
+- a title and axis labels 
+
+This is more code that we'd usually use for plots because we are adding multiple layers from several different datasets. But it's not as much as it may seem because I added many line breaks to make the code more legible.
+```{r}
+ggplot() +
+#Add the states polygons and make the fill color light yellow-ish (I use hex codes to define colors)
+  geom_sf(data = states, 
+          fill = "#f4f1de") +
+#add the counties polygons, make the fill color light orange and the line color light gray
+  geom_sf(data = counties, 
+          fill = "#f2cc8f", 
+          color = "#787878") +
+#add the sites points, make the point size 4, shape #23 (diamond), and the fill color dark orange
+  geom_sf(data = sites, 
+          size = 4, shape = 23, 
+          fill = "#e07a5f") +
+#add the cities points, make the point size 2 and color a medium gray
+  geom_sf(data = cities, 
+          size = 2, 
+          color = "#383838") +
+#add state names using `geom_sf_text()`; make the font size 4, the text color medium gray, and the fontface bold
+  geom_sf_text(data = states, aes(label = ID), 
+               size = 4, 
+               color = "#383838", 
+               fontface = "bold") +
+#add the site name labels using `geom_sf_label_repel()`; "nudge" the labels a bit so they don't look too squished together
+  geom_sf_label_repel(data = sites, aes(label = name),
+                      nudge_x = c(0.5, 1), 
+                      nudge_y = c(1, 0)) +
+#add city labels using `geom_sf_text_repel()`; make the font color medium gray, font size 3, fontface italic, and nudge the labels a bit so they don't overlap with the counties polygons as much
+  geom_sf_text_repel(data = cities, aes(label = city), 
+                     color = "#383838", 
+                     size = 3, 
+                     fontface = "italic",
+                     nudge_x = c(0.5, 1, 1, -0.5),
+                     nudge_y = c(0, 0.1, 0.1, 0)) +
+#add a scale bar; color the lines and bars dark gray and fill the bar with bluish-green
+  annotation_scale(location = "bl", 
+                   width_hint = 0.4, 
+                   bar_cols = c("#383838", "#d8e2dc"), 
+                   line_col = "#383838", 
+                   text_col = "#383838") +
+#add a north-facing arrow; fill the arrow with dark gray and bluish-green and color the lines dark gray
+  annotation_north_arrow(location = "bl", 
+                         which_north = "true", 
+                         pad_y = unit(0.25, "in"), 
+                         style = north_arrow_fancy_orienteering(fill = c("#d8e2dc", "#383838"),
+                                                                line_col = "#383838", 
+                                                                text_col = "#383838")) +
+  coord_sf(xlim = c(-88, -78), 
+           ylim = c(24.5, 33), 
+           expand = FALSE) +
+  labs(x = "Longitude", 
+       y = "Latitude", 
+       title = "Study Sites", 
+       subtitle = "Palm Beach County, Florida") +
+  theme(panel.background = element_rect(fill = "#d8e2dc"))
+```
+
+
+# Your turn!
+
+Replace `...` below with information that is relevant to your study sites. Use the example code above as a guide. If you knit your document, remember to remove `eval = FALSE` from the chunk options below, otherwise your results won't be rendered in your rendered document.
+
+## 1. Create and load spatial data
+
+### a. Create a tibble containing the latitude and longitude coordinates of your study site. 
+
+You can choose any real or hypothetical sites in the U.S., or just use SMCM as your study site. If you're not sure what your site coordinates are, go to google maps, zoom into your study area, and click on the location of your study. Write down the latitude and longitude coordinates and enter them below.
+
+```{r, eval = FALSE}
+my_sites <- tibble(longitude = c(...), latitude = c(...))
+```
+
+### b. Convert your study site tibble to an `sf` object. Use the same coordinate reference system as the states and counties data (crs = 4326)
+```{r, eval = FALSE}
+my_sites <- st_as_sf(sites, coords = c("longitude", "latitude"), crs = 4326)
+```
+
+
+### c. Load the states map using the `maps` package
+```{r, eval = FALSE}
+my_states <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE)) %>%
+  mutate(ID = toTitleCase(ID))
+```
+
+
+### d. Load the counties map using the `maps` package and filter the counties dataset so that it only contains counties from the state in which your study sites are located
+```{r, eval = FALSE}
+my_counties <- st_as_sf(maps::map("county", plot = FALSE, fill = TRUE)) %>%
+  filter(str_detect(ID, ...)) %>%
+  mutate(area = as.numeric(st_area(st_make_valid(geom))))
+```
+
+### e. Create a tibble containing the names and lat/long coordinates of 3 major cities in your state. Use google maps to find approximate coordinates for each city.
+```{r, eval = FALSE}
+my_cities <- tibble(state = rep(..., 3), # enter the name of your state here
+                 city = c(...), # enter the names of your cities here
+                 latitude = c(...), # enter the latitude coordinates for each city
+                 longitude = c(...)) # enter the longitude coordinates for each city
+```
+
+### f. Convert your cities tibble to an sf object; use crs = 4326.
+```{r, eval = FALSE}
+my_cities <- st_as_sf(cities, coords = c("longitude", "latitude"), crs = 4326)
+```
+
+## 2. Create a map 
+
+The map should contain the states labeled with state name, the counties plotted with a different fill color, cities labeled with smaller, lighter text, your study site with contrasting marker colors, a north arrow and scale bar, and a nice title and axis labels. 
+
+Go through the code below and replace `...` with the appropriate arguments to make your study site map. Make sure to change the bounding box x and y limits in the `coord_sf()` function.
+```{r, eval = FALSE}
+ggplot() +
+#Add the states polygons and make the fill color light yellow-ish (I use hex codes to define colors)
+  geom_sf(data = ..., 
+          fill = "#f4f1de") +
+#add the counties polygons, make the fill color light orange and the line color light gray
+  geom_sf(data = ..., 
+          fill = "#f2cc8f", 
+          color = "#787878") +
+#add the sites points, make the point size 4, shape #23 (diamond), and the fill color dark orange
+  geom_sf(data = ..., 
+          size = 4, shape = 23, 
+          fill = "#e07a5f") +
+#add the cities points, make the point size 2 and color a medium gray
+  geom_sf(data = ..., 
+          size = 2, 
+          color = "#383838") +
+#add state names using `geom_sf_text()`; make the font size 4, the text color medium gray, and the fontface bold
+  geom_sf_text(data = ..., aes(label = ID), 
+               size = 4, 
+               color = "#383838", 
+               fontface = "bold") +
+#add the site name labels using `geom_sf_label_repel()`; "nudge" the labels a bit so they don't look too squished together
+  geom_sf_label_repel(data = ..., aes(label = ...) +
+#add city labels using `geom_sf_text_repel()`; make the font color medium gray, font size 3, fontface italic, and nudge the labels a bit so they don't overlap with the counties polygons as much
+  geom_sf_text_repel(data = ..., aes(label = ...), 
+                     color = "#383838", 
+                     size = 3, 
+                     fontface = "italic") +
+#add a scale bar; color the lines and bars dark gray and fill the bar with bluish-green
+  annotation_scale(location = "bl", 
+                   width_hint = 0.4, 
+                   bar_cols = c("#383838", "#d8e2dc"), 
+                   line_col = "#383838", 
+                   text_col = "#383838") +
+#add a north-facing arrow; fill the arrow with dark gray and bluish-green and color the lines dark gray
+  annotation_north_arrow(location = "bl", 
+                         which_north = "true", 
+                         pad_y = unit(0.25, "in"), 
+                         style = north_arrow_fancy_orienteering(fill = c("#d8e2dc", "#383838"),
+                                                                line_col = "#383838", 
+                                                                text_col = "#383838")) +
+  coord_sf(xlim = c(...), 
+           ylim = c(...), 
+           expand = FALSE) +
+  labs(x = "Longitude", 
+       y = "Latitude", 
+       title = "Study Sites", 
+       subtitle = ...) +
+  theme(panel.background = element_rect(fill = "#d8e2dc"))
+```
+
+
+## 3. Customize the aesthetics
+
+If you have time, change the styling aesthetics in the map above (colors, font style/color, arrow/bar style, etc.) to customize the look of your map. I like to use color palettes designed by people who know what they're doing (graphic designers). [Here](https://coolors.co/palettes/maps) is one good source.

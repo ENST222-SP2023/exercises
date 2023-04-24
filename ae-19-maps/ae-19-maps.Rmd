@@ -1,0 +1,235 @@
+---
+title: "AE-18-maps"
+output:
+  html_document:
+    fig_caption: no
+    toc: yes
+    toc_depth: 2
+    toc_float:
+      collapsed: no
+  pdf_document:
+    toc: yes
+    toc_depth: '2'
+---
+Adapted from [Drawing beautiful maps programmatically with R, sf and ggplot2 - Part 2: Layers](https://raw.githubusercontent.com/r-spatial/r-spatial.org/gh-pages/_rmd/2018-10-03-ggplot2-sf-2.Rmd) by Mel Moreno and Mathieu Basille. 
+
+Load packages.
+```{r global_options, include = FALSE}
+knitr::opts_chunk$set(
+    message = FALSE,
+    warning = FALSE,
+    cache = TRUE,
+    tidy = FALSE,
+    fig.width = 7,
+    fig.height = 7,
+    out.width = "65%")
+
+library(tidyverse)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(ggspatial)
+library(maps)
+library(tools)
+library(googleway)
+library(ggrepel)
+library(spdep)
+```
+
+
+## Getting started
+
+The package `rnaturalearth` provides a map of countries of the entire world. Use `ne_countries` to get country-level spatial data and choose the scale (`rnaturalearthhires` is necessary for `scale = "large"`). The function can return `sp` classes (default) or `sf` classes, as defined in the argument `returnclass`. We'll use `sf` because `sf` data objects work well with tidyverse functions, including `ggplot()`.
+
+```{r pkg-rnaturalearth}
+sf_use_s2(FALSE) #this isn't usually required, but there was a problem with this dataset and this line of code fixes it
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+class(world)
+
+world
+```
+
+Note that the `world` data object looks just like a normal data frame, but with some extra information. Spatial attributes of the data frame are first printed. Then a data frame containing a bunch of variables is printed. The last column of the data frame is `geometry`, which contains spatial coordinate information for each observation (row). In this dataset, each row is a different country.
+
+We can just do regular data frame operations with the `world` dataset.
+
+1. `group_by` the `continent` variable and use the `summarize` function to calculate the mean `gdp_md_est`. 
+```{r}
+sf_use_s2(FALSE)
+z <- poly2nb(world)
+
+gdp_cont <- world %>%
+  group_by(continent) %>%
+  summarize(GDP = mean(gdp_md_est, na.rm = TRUE))
+```
+
+Note that the `geometry` column is preserved, so we could plot a map of the continents colored according to continent. We use `geom_sf()` to plot spatial geometries contained in `sf` objects. You can map additional variables contained in the dataset to fill, color, etc.
+```{r}
+ggplot(gdp_cont, aes(fill = GDP)) +
+  geom_sf() +
+  scale_fill_viridis_c(option = "magma", begin = .2, end = 0.8) +
+  theme_void()
+```
+
+2. Try to create a map of the `world` dataset, and map `pop_est` to the fill.
+```{r}
+
+```
+
+
+# Adding multiple map layers: an example with points and polygons
+
+## Field sites (point data)
+
+A common spatial task is to create a basic map of your study site. Here, we'll map two study sites in Florida. We start by defining two study sites, according to their longitude and latitude, which we'll store in a tibble.
+```{r sites-sites}
+sites <- tibble(longitude = c(-80.144005, -80.109), latitude = c(26.479005, 
+    26.83))
+```
+
+The quickest way to add point coordinates is with `geom_point`, which works with any X-Y coordinates in a regular (not spatial) dataframe. We can adjust all characteristics of points (e.g. color of the outline and the filling, shape, size, etc.) as normal to customize the way they look. In this example, we add the two points as diamonds (`shape = 23`), filled in dark red (`fill = "darkred"`) and of bigger size (`size = 4`). We use the `coord_sf()` function to zoom in on Florida by defining min and max latitude and longitudes for the spatial region we want to plot.
+```{r sites-plot}
+ggplot(data = world) +
+    geom_sf() +
+    geom_point(data = sites, aes(x = longitude, y = latitude), size = 4, 
+        shape = 23, fill = "darkred") +
+    coord_sf(xlim = c(-88, -78), ylim = c(24.5, 33), expand = FALSE)
+```
+
+A better, more flexible alternative is to use the power of `sf`: Converting a data frame containing spatial coordinates to an `sf` object allows us to rely on `sf` to handle on the fly the coordinate system (both projection and extent), which can be very useful if the two spatial objects we want to layer (here world map, and sites) are not in the same projection. To achieve the same result, the projection (here WGS84, which is the CRS code #4326) has to be defined in the `sf` object. We use the   `st_as_sf` function to convert the sites dataframe to a spatial `sf` object.
+```{r sites-sf-create}
+sites <- st_as_sf(sites, coords = c("longitude", "latitude"), 
+    crs = 4326, agr = "constant")
+```
+
+Now we can use `geom_sf()` to add our sites to the map. Since the sites data are contained in a different data frame from `world`, we need to supply `data=sites` as an argument in `geom_sf()`
+```{r sites-sf-plot}
+ggplot(data = world) +
+    geom_sf() +
+    geom_sf(data = sites, size = 4, shape = 23, fill = "darkred") +
+    coord_sf(xlim = c(-88, -78), ylim = c(24.5, 33), expand = FALSE)
+```
+
+Note that `coord_sf` has to be called after all `geom_sf` calls, as to supersede any former input.
+
+
+## States (polygon data)
+
+It would be informative to add finer administrative information on top of the previous map, starting with state borders and names. The package `maps` (which is automatically installed and loaded with `ggplot2`) provides maps of the USA, with state and county borders, that can be retrieved and converted as `sf` objects:
+```{r states}
+states <- st_as_sf(maps::map("state", plot = FALSE, fill = TRUE))
+head(states)
+```
+
+Note that this is a much smaller dataframe - it only contains state names (`ID` variable) and the geometry for each state. A simple (but not necessarily optimal) way to tell R where, specifically, to add state name labels to the map is to compute the centroid of each state polygon as the coordinates where to draw their names. Centroids are computed with the function `st_centroid`, their coordinates extracted with `st_coordinates`, both from the package `sf`, and added to the `states` spatial dataframe.
+```{r states-centroids}
+states <- cbind(states, st_coordinates(st_centroid(st_make_valid(states))))
+```
+
+Note the warning, which basically says that centroid coordinates using longitude/latitude data (i.e. WGS84) are not exact, which is perfectly fine for our drawing purposes. State names, which are not capitalized in the data from `maps`, can be changed to title case using the function `toTitleCase` from the package `tools`:
+```{r states-id}
+#capitalize state names
+states$ID <- toTitleCase(states$ID) 
+head(states)
+```
+
+To continue adding to the map, state data is directly plotted as an additional `sf` layer using `geom_sf`. In addition, state names will be added using `geom_text`, declaring coordinates on the X-axis and Y-axis, as well as the label (from `ID`), and a relatively big font size.
+```{r states-plot}
+ggplot(data = world) +
+    geom_sf() +
+    geom_sf(data = states, fill = NA) + 
+    geom_text(data = states, aes(X, Y, label = ID), size = 5) +
+    coord_sf(xlim = c(-88, -78), ylim = c(24.5, 33), expand = FALSE)
+```
+
+We can move the state names slightly to be able to read better "South Carolina" and "Florida". For this, we create a new variable `nudge_y`, which is -1 for all states (moved slightly South), 0.5 for Florida (moved slightly North), and -1.5 for South Carolina (moved further South):
+```{r states-nudge}
+states$nudge_y <- -1
+states$nudge_y[states$ID == "Florida"] <- 0.5
+states$nudge_y[states$ID == "South Carolina"] <- -1.5
+```
+
+To improve readability, we also draw a rectangle behind the state name, using the function `geom_label` instead of `geom_text`, and plot the map again.
+```{r states-plot-nudge}
+ggplot(data = world) +
+    geom_sf() +
+    geom_sf(data = states, fill = NA) + 
+    geom_label(data = states, aes(X, Y, label = ID), size = 5, fontface = "bold", 
+        nudge_y = states$nudge_y) +
+    coord_sf(xlim = c(-88, -78), ylim = c(24.5, 33), expand = FALSE)
+```
+
+
+## Counties (polygon data)
+
+County data are also available from the package `maps`, and can be retrieved with the same approach as for state data. This time, only counties from Florida are retained, and we compute their area using `st_area` from the package `sf`:
+```{r counties}
+counties <- st_as_sf(maps::map("county", plot = FALSE, fill = TRUE))
+counties <- counties %>%
+  filter(str_detect(ID, "florida")) %>%
+  mutate(area = as.numeric(st_area(st_make_valid(geom))))
+```
+
+County lines can now be added in a very simple way, using a gray outline:
+```{r counties-plot}
+ggplot(data = world) +
+    geom_sf() +
+    geom_sf(data = counties, fill = NA, color = gray(.5)) +
+    coord_sf(xlim = c(-88, -78), ylim = c(24.5, 33), expand = FALSE)
+```
+
+We can also fill in the county using their area to visually identify the largest counties. For this, we use the "viridis" colorblind-friendly palette, with some transparency:
+```{r counties-plot-scale, fig.width = 9, out.width = "75%"}
+ggplot(data = world) +
+    geom_sf() +
+    geom_sf(data = counties, aes(fill = area)) +
+    scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+    coord_sf(xlim = c(-88, -78), ylim = c(24.5, 33), expand = FALSE)
+```
+
+
+## Cities (point data)
+
+To make a more complete map of Florida, main cities will be added to the map. We first prepare a data frame with the five largest cities in the state of Florida, and their geographic coordinates:
+```{r cities-fl}
+flcities <- tibble(state = rep("Florida", 5), city = c("Miami", 
+    "Tampa", "Orlando", "Jacksonville", "Sarasota"), lat = c(25.7616798, 
+    27.950575, 28.5383355, 30.3321838, 27.3364347), lng = c(-80.1917902, 
+    -82.4571776, -81.3792365, -81.655651, -82.5306527))
+```
+
+# Final map
+
+For the final map, we put everything together, having a general background map based on the world map, with state and county delineations, state labels, main city names and locations, as well as a theme adjusted with titles, subtitles, axis labels, and a scale bar:
+```{r layers-final-plot, fig.width = 9, out.width = "75%"}
+library("ggspatial")
+ggplot(data = world) +
+    geom_sf(fill = "antiquewhite1") +
+    geom_sf(data = counties, aes(fill = area)) +
+    geom_sf(data = states, fill = NA) + 
+    geom_sf(data = sites, size = 4, shape = 23, fill = "darkred") +
+    geom_label(data = states, aes(X, Y, label = ID), size = 5, fontface = "bold", 
+        nudge_y = states$nudge_y) +
+    scale_fill_viridis_c(trans = "sqrt", alpha = .4) +
+    annotation_scale(location = "bl", width_hint = 0.4) +
+    annotation_north_arrow(location = "bl", which_north = "true", 
+        pad_x = unit(0.75, "in"), pad_y = unit(0.5, "in"),
+        style = north_arrow_fancy_orienteering) +
+    coord_sf(xlim = c(-88, -78), ylim = c(24.5, 33), expand = FALSE) +
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("Observation Sites", subtitle = "(2 sites in Palm Beach County, Florida)") +
+    theme(panel.grid.major = element_line(color = gray(0.5), linetype = "dashed", 
+        size = 0.5), panel.background = element_rect(fill = "aliceblue"))
+```
+
+This example fully demonstrates that adding layers on `ggplot2` is relatively straightforward, as long as the data is properly stored in an `sf` object. Adding additional layers would simply follow the same logic, with additional calls to `geom_sf` at the right place in the `ggplot2` sequence.
+
+# Challenge
+
+Recycle the code in this tutorial to create a map of Maryland that identifies the location of SMCM.
+```{r map-challenge}
+
+```
+
