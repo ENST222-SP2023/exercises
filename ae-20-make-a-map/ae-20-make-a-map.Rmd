@@ -137,7 +137,8 @@ Replace `...` below with information that is relevant to your study sites. Use t
 You can choose any real or hypothetical sites in the U.S., or just use SMCM as your study site. If you're not sure what your site coordinates are, go to google maps, zoom into your study area, and click on the location of your study. Write down the latitude and longitude coordinates and enter them below.
 
 ```{r, eval = FALSE}
-my_sites <- tibble(longitude = c(...), latitude = c(...))
+my_sites <- tibble(longitude = c(...), latitude = c(...), 
+                   name = c(...))
 ```
 
 ### b. Convert your study site tibble to an `sf` object. Use the same coordinate reference system as the states and counties data (crs = 4326)
