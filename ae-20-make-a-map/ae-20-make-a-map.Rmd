@@ -142,7 +142,7 @@ my_sites <- tibble(longitude = c(...), latitude = c(...))
 
 ### b. Convert your study site tibble to an `sf` object. Use the same coordinate reference system as the states and counties data (crs = 4326)
 ```{r, eval = FALSE}
-my_sites <- st_as_sf(sites, coords = c("longitude", "latitude"), crs = 4326)
+my_sites <- st_as_sf(my_sites, coords = c("longitude", "latitude"), crs = 4326)
 ```
 
 
@@ -170,7 +170,7 @@ my_cities <- tibble(state = rep(..., 3), # enter the name of your state here
 
 ### f. Convert your cities tibble to an sf object; use crs = 4326.
 ```{r, eval = FALSE}
-my_cities <- st_as_sf(cities, coords = c("longitude", "latitude"), crs = 4326)
+my_cities <- st_as_sf(my_cities, coords = c("longitude", "latitude"), crs = 4326)
 ```
 
 ## 2. Create a map 
